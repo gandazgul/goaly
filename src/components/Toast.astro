@@ -1,0 +1,62 @@
+---
+export interface Props {
+  message: string;
+  type?: 'success' | 'info' | 'error' | 'warning' | 'indigo' | 'gray';
+  title?: string;
+}
+const { message, title, type = 'success' } = Astro.props;
+
+const colorClasses = {
+  success: 'bg-green-100 border-green-400 text-green-700',
+  info: 'bg-blue-100 border-blue-400 text-blue-700',
+  warning: 'bg-yellow-100 border-yellow-400 text-yellow-700',
+  error: 'bg-red-100 border-red-400 text-red-700',
+  indigo: 'bg-indigo-100 border-indigo-400 text-indigo-700',
+  gray: 'bg-gray-100 border-gray-400 text-gray-700',
+};
+
+const colors = colorClasses[type] || colorClasses.success;
+---
+
+<goaly-toast class={`fixed top-4 right-4 z-50 border px-4 py-3 rounded shadow-lg max-w-sm w-full flex items-start justify-between transition-opacity duration-300 ${colors}`} role="alert">
+  <div>
+    {title && <strong class="font-bold mr-2">{title}</strong>}
+    <span class="block sm:inline">{message}</span>
+  </div>
+  <button class="toast-close ml-4 text-current opacity-70 hover:opacity-100 focus:outline-none">
+    <span class="sr-only">Close</span>
+    <svg class="h-5 w-5 fill-current" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+    </svg>
+  </button>
+</goaly-toast>
+
+<script>
+  class GoalyToast extends HTMLElement {
+    connectedCallback() {
+      const closeBtn = this.querySelector('.toast-close');
+      
+      const dismiss = () => {
+        this.style.opacity = '0';
+        setTimeout(() => this.remove(), 300);
+      };
+
+      closeBtn?.addEventListener('click', dismiss);
+
+      // Clean up URL to avoid showing toast on refresh
+      const url = new URL(window.location.href);
+      if (url.searchParams.has('success')) {
+        url.searchParams.delete('success');
+        window.history.replaceState({}, '', url.toString() || window.location.pathname);
+      }
+
+      // Auto dismiss after 5 seconds
+      setTimeout(dismiss, 5000);
+    }
+  }
+
+  // Only define if it hasn't been defined yet
+  if (!customElements.get('goaly-toast')) {
+    customElements.define('goaly-toast', GoalyToast);
+  }
+</script>

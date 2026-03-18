@@ -65,14 +65,14 @@ const goalColorText = textColors[goal.color || '9'] || 'text-blue-500';
   
   <div class="flex justify-between items-start mb-2 pl-3">
     <h3 class="text-xl font-bold text-gray-800 break-words flex items-center gap-2">
-      <div class={`${goal.icon || 'i-ph-star-fill'} ${goalColorText}`}></div>
+      <span class={`${goal.icon || 'i-ph-star-fill'} ${goalColorText}`}></span>
       {goal.name}
     </h3>
     
     <form method="POST" action="/api/goals/delete" class="opacity-0 group-hover:opacity-100 transition-opacity" onsubmit="return confirm('Are you sure you want to delete this goal and remove all of its scheduled events from your calendar?');">
       <input type="hidden" name="goal_id" value={goal.id} />
       <button type="submit" class="text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-red-50 transition" title="Delete Goal">
-        <div class="i-ph-trash text-lg"></div>
+        <span class="i-ph-trash text-lg"></span>
       </button>
     </form>
   </div>
