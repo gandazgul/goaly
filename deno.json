@@ -1,0 +1,17 @@
+{
+  "tasks": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "compilerOptions": {
+    "checkJs": true,
+    "allowJs": true
+  },
+  "imports": {
+    "@db/sqlite": "jsr:@db/sqlite@^0.13.0",
+    "@std/http": "jsr:@std/http@^1.0.25"
+  }
+}

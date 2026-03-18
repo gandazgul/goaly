@@ -1,0 +1,96 @@
+---
+const { goal } = Astro.props;
+
+// Formatting helpers
+const formatDuration = (minutes) => {
+  if (minutes < 60) return `${minutes} min`;
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m > 0 ? `${h}h ${m}m` : `${h} hr`;
+};
+
+const formatTimes = (times) => {
+  if (times === 7) return 'Every day';
+  if (times === 1) return 'Once a week';
+  return `${times}x a week`;
+};
+
+// Map preferences to icons and colors
+const getPreferenceDetails = (pref) => {
+  const map = {
+    morning: { icon: 'i-ph-sun-dim text-yellow-500', label: 'Morning' },
+    afternoon: { icon: 'i-ph-sun text-orange-500', label: 'Afternoon' },
+    evening: { icon: 'i-ph-cloud-moon text-indigo-500', label: 'Evening' },
+    night: { icon: 'i-ph-moon-stars text-purple-600', label: 'Night' },
+  };
+  return map[pref] || { icon: 'i-ph-clock text-gray-500', label: pref };
+};
+
+const prefDetails = getPreferenceDetails(goal.time_preference);
+
+const bgColors = {
+  '1': 'bg-[#7986cb]', // Lavender
+  '2': 'bg-[#33b679]', // Sage
+  '3': 'bg-[#8e24aa]', // Grape
+  '4': 'bg-[#e67c73]', // Flamingo
+  '5': 'bg-[#f6c026]', // Banana
+  '6': 'bg-[#f4511e]', // Tangerine
+  '7': 'bg-[#039be5]', // Peacock
+  '8': 'bg-[#616161]', // Graphite
+  '9': 'bg-[#3f51b5]', // Blueberry
+  '10': 'bg-[#0b8043]', // Basil
+  '11': 'bg-[#d50000]', // Tomato
+};
+
+const textColors = {
+  '1': 'text-[#7986cb]', 
+  '2': 'text-[#33b679]', 
+  '3': 'text-[#8e24aa]', 
+  '4': 'text-[#e67c73]', 
+  '5': 'text-[#f6c026]', 
+  '6': 'text-[#f4511e]', 
+  '7': 'text-[#039be5]', 
+  '8': 'text-[#616161]', 
+  '9': 'text-[#3f51b5]', 
+  '10': 'text-[#0b8043]', 
+  '11': 'text-[#d50000]', 
+};
+
+const goalColorBg = bgColors[goal.color || '9'] || 'bg-blue-500';
+const goalColorText = textColors[goal.color || '9'] || 'text-blue-500';
+---
+
+<div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition text-left relative overflow-hidden group">
+  <div class={`absolute top-0 left-0 w-1.5 h-full ${goalColorBg} rounded-l-xl`}></div>
+  
+  <div class="flex justify-between items-start mb-2 pl-3">
+    <h3 class="text-xl font-bold text-gray-800 break-words flex items-center gap-2">
+      <div class={`${goal.icon || 'i-ph-star-fill'} ${goalColorText}`}></div>
+      {goal.name}
+    </h3>
+    
+    <form method="POST" action="/api/goals/delete" class="opacity-0 group-hover:opacity-100 transition-opacity" onsubmit="return confirm('Are you sure you want to delete this goal and remove all of its scheduled events from your calendar?');">
+      <input type="hidden" name="goal_id" value={goal.id} />
+      <button type="submit" class="text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-red-50 transition" title="Delete Goal">
+        <div class="i-ph-trash text-lg"></div>
+      </button>
+    </form>
+  </div>
+  
+  <div class="pl-3 grid grid-cols-2 gap-y-3 gap-x-4 mt-4">
+    <div class="flex items-center gap-2 text-sm text-gray-600">
+      <div class="i-ph-timer text-lg text-gray-400"></div>
+      {formatDuration(goal.duration_minutes)}
+    </div>
+    
+    <div class="flex items-center gap-2 text-sm text-gray-600">
+      <div class="i-ph-calendar-plus text-lg text-gray-400"></div>
+      {formatTimes(goal.times_per_week)}
+    </div>
+    
+    <div class="flex items-center gap-2 text-sm text-gray-600 col-span-2">
+      <div class={`${prefDetails.icon} text-lg`}></div>
+      <span class="capitalize">Prefers {prefDetails.label}</span>
+    </div>
+  </div>
+</div>

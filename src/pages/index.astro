@@ -1,0 +1,109 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { db } from '../db';
+import { getUserFromRequest } from '../lib/auth.js';
+import GoalForm from '../components/GoalForm.astro';
+import GoalCard from '../components/GoalCard.astro';
+
+// Get current user if any
+const user = getUserFromRequest(Astro.request);
+
+// Fetch goals for logged-in user
+let goals = [];
+if (user) {
+  goals = db.prepare('SELECT * FROM goals WHERE user_id = ? ORDER BY created_at DESC').all(user.id);
+}
+
+// Check for success param
+const url = new URL(Astro.request.url);
+const successParam = url.searchParams.get('success');
+---
+
+<Layout>
+	<div class="p-8 text-center bg-gray-50 min-h-screen font-sans">
+		<h1 class="text-4xl font-bold mb-8 flex items-center justify-center gap-3">
+			<span class="text-blue-600 tracking-tight">Goal</span>
+			<span class="bg-gradient-to-r from-blue-500 to-teal-400 text-transparent bg-clip-text">Digger</span>
+			<span class="i-ph-target text-4xl text-blue-500"></span>
+		</h1>
+		
+		{successParam === 'EventCreated' && (
+			<div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative max-w-md mx-auto mb-6 shadow-sm" role="alert">
+				<strong class="font-bold">Success!</strong>
+				<span class="block sm:inline"> Test event created on your Google Calendar!</span>
+			</div>
+		)}
+		
+		{successParam === 'GoalCreated' && (
+			<div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative max-w-md mx-auto mb-6 shadow-sm" role="alert">
+				<strong class="font-bold">Awesome!</strong>
+				<span class="block sm:inline"> Your new goal has been saved.</span>
+			</div>
+		)}
+
+		{successParam === 'GoalDeleted' && (
+			<div class="bg-gray-100 border border-gray-400 text-gray-700 px-4 py-3 rounded relative max-w-md mx-auto mb-6 shadow-sm" role="alert">
+				<span class="block sm:inline"> Goal deleted successfully.</span>
+			</div>
+		)}
+
+		{user ? (
+			<div class="max-w-4xl mx-auto text-left">
+				<div class="flex justify-between items-center mb-8 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+					<div>
+						<p class="text-sm text-gray-500">Logged in as</p>
+						<p class="font-semibold text-gray-800">{user.email}</p>
+					</div>
+					<div class="flex gap-3">
+						<a href="/profile" class="text-sm bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition font-medium border border-gray-300 flex items-center gap-2">
+							<div class="i-ph-gear"></div>
+							Settings
+						</a>
+						<a href="/api/auth/logout" class="text-sm bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition font-medium border border-red-200">
+							Logout
+						</a>
+					</div>
+				</div>
+
+				<div class="grid md:grid-cols-2 gap-8 items-start">
+					<div class="order-2 md:order-1">
+						<h2 class="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-2">
+							<span class="i-ph-list-checks-fill text-teal-500"></span>
+							Your Active Goals
+						</h2>
+						
+						{goals.length === 0 ? (
+							<div class="bg-white border-2 border-dashed border-gray-300 rounded-xl p-8 text-center text-gray-500">
+								<div class="i-ph-ghost text-4xl mx-auto mb-2 text-gray-400"></div>
+								<p>You don't have any active goals yet.</p>
+								<p class="text-sm mt-1">Use the form to create your first one!</p>
+							</div>
+						) : (
+							<div class="space-y-4">
+								{goals.map((goal) => (
+									<GoalCard goal={goal} />
+								))}
+							</div>
+						)}
+					</div>
+
+					<div class="order-1 md:order-2">
+						<GoalForm />
+					</div>
+				</div>
+			</div>
+		) : (
+			<div class="mt-16 bg-white p-8 rounded-2xl shadow-xl max-w-lg mx-auto border border-gray-100">
+				<div class="i-ph-calendar-plus text-7xl text-blue-500 mx-auto mb-6"></div>
+				<h2 class="text-2xl font-bold text-gray-800 mb-2">Build Better Habits</h2>
+				<p class="text-gray-600 mb-8">
+					Set your goals, choose your preferred times, and let Goal Digger automatically schedule them into free slots on your Google Calendar.
+				</p>
+				<a href="/api/auth/login" class="flex items-center justify-center gap-3 w-full bg-blue-600 text-white px-6 py-4 rounded-xl shadow-md text-lg font-semibold hover:bg-blue-700 hover:shadow-lg transition">
+					<div class="i-ph-google-logo-bold text-xl"></div>
+					Continue with Google
+				</a>
+			</div>
+		)}
+	</div>
+</Layout>

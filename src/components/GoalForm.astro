@@ -1,0 +1,156 @@
+---
+// No props needed for the form
+const icons = [
+  'i-ph-star-fill', 'i-ph-book-fill', 'i-ph-barbell-fill', 'i-ph-sneaker-fill', 
+  'i-ph-heart-fill', 'i-ph-code-fill', 'i-ph-palette-fill', 'i-ph-music-notes-fill', 
+  'i-ph-money-fill', 'i-ph-leaf-fill', 'i-ph-graduation-cap-fill', 'i-ph-game-controller-fill'
+];
+
+const colors = [
+  { id: '1', bg: 'bg-[#7986cb]' }, // Lavender
+  { id: '2', bg: 'bg-[#33b679]' }, // Sage
+  { id: '3', bg: 'bg-[#8e24aa]' }, // Grape
+  { id: '4', bg: 'bg-[#e67c73]' }, // Flamingo
+  { id: '5', bg: 'bg-[#f6c026]' }, // Banana
+  { id: '6', bg: 'bg-[#f4511e]' }, // Tangerine
+  { id: '7', bg: 'bg-[#039be5]' }, // Peacock
+  { id: '8', bg: 'bg-[#616161]' }, // Graphite
+  { id: '9', bg: 'bg-[#3f51b5]', default: true }, // Blueberry
+  { id: '10', bg: 'bg-[#0b8043]' }, // Basil
+  { id: '11', bg: 'bg-[#d50000]' }, // Tomato
+];
+---
+
+<div class="bg-white p-6 rounded-xl shadow-md border border-gray-100 mb-8 max-w-xl mx-auto text-left">
+  <h2 class="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-2">
+    <div class="i-ph-plus-circle-fill text-blue-500"></div>
+    New Goal
+  </h2>
+  
+  <form method="POST" action="/api/goals/create" class="space-y-4">
+    <div>
+      <label for="name" class="block text-sm font-medium text-gray-700 mb-1">I want to...</label>
+      <input 
+        type="text" 
+        id="name" 
+        name="name" 
+        placeholder="e.g. Read a book, Workout, Meditate" 
+        required 
+        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+      />
+    </div>
+
+    <!-- Icon & Color Row -->
+    <div class="grid grid-cols-2 gap-4">
+      <!-- Icons -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Icon</label>
+        <div class="flex flex-wrap gap-2">
+          {icons.map((icon, index) => (
+            <label class="cursor-pointer relative">
+              <input type="radio" name="icon" value={icon} class="peer sr-only" checked={index === 0} />
+              <div class="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600 hover:bg-gray-50 transition text-gray-500 text-xl">
+                <div class={icon}></div>
+              </div>
+            </label>
+          ))}
+        </div>
+      </div>
+      
+      <!-- Colors -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Calendar Color</label>
+        <div class="flex flex-wrap gap-2">
+          {colors.map(color => (
+            <label class="cursor-pointer relative">
+              <input type="radio" name="color" value={color.id} class="peer sr-only" checked={color.default} />
+              <div class={`w-8 h-8 rounded-full ${color.bg} border-2 border-transparent peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-blue-500 hover:scale-110 transition shadow-sm`}></div>
+            </label>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 pt-2">
+      <div>
+        <label for="duration_minutes" class="block text-sm font-medium text-gray-700 mb-1">For how long?</label>
+        <select 
+          id="duration_minutes" 
+          name="duration_minutes" 
+          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white"
+        >
+          <option value="15">15 minutes</option>
+          <option value="30" selected>30 minutes</option>
+          <option value="45">45 minutes</option>
+          <option value="60">1 hour</option>
+          <option value="90">1.5 hours</option>
+          <option value="120">2 hours</option>
+        </select>
+      </div>
+      
+      <div>
+        <label for="times_per_week" class="block text-sm font-medium text-gray-700 mb-1">How often?</label>
+        <select 
+          id="times_per_week" 
+          name="times_per_week" 
+          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white"
+        >
+          <option value="1">Once a week</option>
+          <option value="2">2 times a week</option>
+          <option value="3" selected>3 times a week</option>
+          <option value="4">4 times a week</option>
+          <option value="5">5 times a week</option>
+          <option value="6">6 times a week</option>
+          <option value="7">Every day</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="pt-2">
+      <label class="block text-sm font-medium text-gray-700 mb-2">When do you prefer to do this?</label>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        
+        <label class="cursor-pointer">
+          <input type="radio" name="time_preference" value="morning" class="peer sr-only" required />
+          <div class="rounded-lg border border-gray-200 px-3 py-3 text-center peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-700 hover:bg-gray-50 transition">
+            <div class="i-ph-sun-dim mb-1 text-xl mx-auto text-yellow-500"></div>
+            <span class="text-sm font-medium block">Morning</span>
+            <span class="text-xs text-gray-500 block">6am - 12pm</span>
+          </div>
+        </label>
+        
+        <label class="cursor-pointer">
+          <input type="radio" name="time_preference" value="afternoon" class="peer sr-only" />
+          <div class="rounded-lg border border-gray-200 px-3 py-3 text-center peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-700 hover:bg-gray-50 transition">
+            <div class="i-ph-sun text-xl mb-1 mx-auto text-orange-500"></div>
+            <span class="text-sm font-medium block">Afternoon</span>
+            <span class="text-xs text-gray-500 block">12pm - 5pm</span>
+          </div>
+        </label>
+        
+        <label class="cursor-pointer">
+          <input type="radio" name="time_preference" value="evening" class="peer sr-only" />
+          <div class="rounded-lg border border-gray-200 px-3 py-3 text-center peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-700 hover:bg-gray-50 transition">
+            <div class="i-ph-cloud-moon text-xl mb-1 mx-auto text-indigo-500"></div>
+            <span class="text-sm font-medium block">Evening</span>
+            <span class="text-xs text-gray-500 block">5pm - 9pm</span>
+          </div>
+        </label>
+        
+        <label class="cursor-pointer">
+          <input type="radio" name="time_preference" value="night" class="peer sr-only" />
+          <div class="rounded-lg border border-gray-200 px-3 py-3 text-center peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-700 hover:bg-gray-50 transition">
+            <div class="i-ph-moon-stars text-xl mb-1 mx-auto text-purple-600"></div>
+            <span class="text-sm font-medium block">Night</span>
+            <span class="text-xs text-gray-500 block">9pm - 12am</span>
+          </div>
+        </label>
+
+      </div>
+    </div>
+
+    <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 transition shadow-md mt-6">
+      Save Goal
+    </button>
+  </form>
+</div>
