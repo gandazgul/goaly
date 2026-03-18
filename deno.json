@@ -1,10 +1,10 @@
 {
   "tasks": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "dev": "deno run -A --env npm:astro dev",
+    "start": "deno run -A --env npm:astro dev",
+    "build": "deno run -A --env npm:astro build",
+    "preview": "deno run -A --env npm:astro preview",
+    "astro": "deno run -A --env npm:astro"
   },
   "fmt": {
     "exclude": [".idea"]

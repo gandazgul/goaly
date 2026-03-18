@@ -17,6 +17,6 @@ export function getUserFromRequest(request) {
 
   // Find the user by their Google ID (which we're using as a simple session key for now)
   return db.prepare("SELECT * FROM users WHERE google_id = ?").get(
-      sessionId,
+    sessionId,
   );
 }

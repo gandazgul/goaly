@@ -56,7 +56,28 @@ export async function scheduleGoal(user, goal) {
   const timeMax = new Date(now);
   timeMax.setDate(timeMax.getDate() + 7);
 
-  // 1. Fetch busy blocks from Google Calendar
+  // 1. Fetch existing instances for this goal in the next 7 days to avoid over-scheduling
+  const existingInstances = db.prepare(`
+    SELECT start_time FROM goal_instances 
+    WHERE goal_id = ? AND start_time >= ? AND start_time <= ? AND status != 'deleted'
+  `).all(goalId, timeMin.toISOString(), timeMax.toISOString());
+
+  if (existingInstances.length >= times_per_week) {
+    console.log(
+      `Goal ${goal.name} already has ${existingInstances.length}/${times_per_week} instances scheduled in the next 7 days.`,
+    );
+    return;
+  }
+
+  // Get a list of day strings (e.g. "2023-10-04") where this goal is already scheduled
+  // so we don't schedule multiple instances of the same goal on the same day.
+  const daysWithInstances = new Set(existingInstances.map((inst) => {
+    return new Date(inst.start_time).toISOString().split("T")[0];
+  }));
+
+  const neededInstances = times_per_week - existingInstances.length;
+
+  // 2. Fetch busy blocks from Google Calendar
   const busyEvents = await fetchCalendarEvents(user, timeMin, timeMax);
   const busyRanges = busyEvents.map((e) => ({
     start: new Date(e.start).getTime(),
@@ -68,10 +89,16 @@ export async function scheduleGoal(user, goal) {
 
   // Iterate over the next 7 days to find free slots
   for (let i = 0; i < 7; i++) {
-    if (scheduledSlots.length >= times_per_week) break;
+    if (scheduledSlots.length >= neededInstances) break;
 
     const currentDay = new Date(now);
     currentDay.setDate(now.getDate() + i);
+
+    // Check if this goal is already scheduled today
+    const currentDayString = currentDay.toISOString().split("T")[0];
+    if (daysWithInstances.has(currentDayString)) {
+      continue;
+    }
 
     // Determine the boundaries for this day's time block
     const blockStart = new Date(currentDay);
