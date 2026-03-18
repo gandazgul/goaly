@@ -1,15 +1,21 @@
 # Goaly
 
-The missing piece of your Google Calendar. 
+The missing piece of your Google Calendar.
 
-Goaly automatically finds free time in your existing Google Calendar and natively schedules recurring goals (like reading, working out, or meditating) based on your personal time preferences, duration, and frequency.
+Goaly automatically finds free time in your existing Google Calendar and
+natively schedules recurring goals (like reading, working out, or meditating)
+based on your personal time preferences, duration, and frequency.
 
 ## Features
 
-- **Smart Google Calendar Integration:** Automatically fetches your busy events and schedules your goals into empty gaps.
-- **Time Preferences:** Set your preferred time of day (Morning, Afternoon, Evening, Night) for each individual goal.
-- **Customizable:** Choose from a wide variety of UnoCSS icons and native Google Calendar colors for each goal.
-- **Privacy-First & Self-Hosted:** Powered by Deno, Astro, and SQLite. Your refresh tokens and data never leave your server.
+- **Smart Google Calendar Integration:** Automatically fetches your busy events
+  and schedules your goals into empty gaps.
+- **Time Preferences:** Set your preferred time of day (Morning, Afternoon,
+  Evening, Night) for each individual goal.
+- **Customizable:** Choose from a wide variety of UnoCSS icons and native Google
+  Calendar colors for each goal.
+- **Privacy-First & Self-Hosted:** Powered by Deno, Astro, and SQLite. Your
+  refresh tokens and data never leave your server.
 
 ## Getting Started
 
@@ -17,7 +23,8 @@ Goaly automatically finds free time in your existing Google Calendar and nativel
 
 - [Deno](https://deno.land/) installed
 - A Google Cloud Project with the **Google Calendar API** enabled
-- An OAuth 2.0 Client ID and Secret (Web Application type, redirect URI: `http://localhost:8080/api/auth/callback`)
+- An OAuth 2.0 Client ID and Secret (Web Application type, redirect URI:
+  `http://localhost:8080/api/auth/callback`)
 
 ### Setup & Run
 
@@ -45,10 +52,13 @@ Goaly automatically finds free time in your existing Google Calendar and nativel
 
 ## Next Steps & Future Features
 
-- **Notifications:** Integration with self-hosted push notification services like [Gotify](https://gotify.net/).
-- **Progress Tracking:** Visualizations to track your goal completion rates and streaks.
+- **Notifications:** Integration with self-hosted push notification services
+  like [Gotify](https://gotify.net/).
+- **Progress Tracking:** Visualizations to track your goal completion rates and
+  streaks.
 - **Rescheduling:** Automatically find new slots for missed or skipped goals.
-- **Customizable Time Blocks:** Allow users to define their own hours for Morning, Afternoon, Evening, and Night.
+- **Customizable Time Blocks:** Allow users to define their own hours for
+  Morning, Afternoon, Evening, and Night.
 
 ## Tech Stack
 
@@ -63,4 +73,5 @@ Built with the help of [OpenCode](https://opencode.ai/) using Gemini.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
+for details.

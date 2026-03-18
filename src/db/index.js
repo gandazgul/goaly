@@ -1,8 +1,8 @@
 // Hide from esbuild using new Function
-const importDynamic = new Function('modulePath', 'return import(modulePath)');
-const { DatabaseSync } = await importDynamic('node:sqlite');
+const importDynamic = new Function("modulePath", "return import(modulePath)");
+const { DatabaseSync } = await importDynamic("node:sqlite");
 
-export const db = new DatabaseSync('goaly.db');
+export const db = new DatabaseSync("goaly.db");
 
 // Initialize schema
 db.exec(`

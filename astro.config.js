@@ -1,33 +1,33 @@
-import { defineConfig, passthroughImageService } from 'astro/config';
-import deno from '@astrojs/deno';
-import unocss from 'unocss/astro';
+import { defineConfig, passthroughImageService } from "astro/config";
+import deno from "@astrojs/deno";
+import unocss from "unocss/astro";
 
 // https://astro.build/config
 export default defineConfig({
-  output: 'server',
+  output: "server",
   server: {
     port: 8080,
-    host: '0.0.0.0'
+    host: "0.0.0.0",
   },
   adapter: deno({
     port: 8080,
-    hostname: '0.0.0.0'
+    hostname: "0.0.0.0",
   }),
   integrations: [unocss({ injectReset: true })],
   security: {
-    checkOrigin: false
+    checkOrigin: false,
   },
   image: {
-    service: passthroughImageService()
+    service: passthroughImageService(),
   },
   vite: {
     build: {
       rollupOptions: {
-        external: ['node:sqlite']
-      }
+        external: ["node:sqlite"],
+      },
     },
     ssr: {
-      external: ['node:sqlite']
-    }
-  }
+      external: ["node:sqlite"],
+    },
+  },
 });
