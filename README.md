@@ -17,7 +17,7 @@ Goaly automatically finds free time in your existing Google Calendar and nativel
 
 - [Deno](https://deno.land/) installed
 - A Google Cloud Project with the **Google Calendar API** enabled
-- An OAuth 2.0 Client ID and Secret (Web Application type, redirect URI: `http://localhost:8000/api/auth/callback`)
+- An OAuth 2.0 Client ID and Secret (Web Application type, redirect URI: `http://localhost:8080/api/auth/callback`)
 
 ### Setup & Run
 
@@ -30,7 +30,7 @@ Goaly automatically finds free time in your existing Google Calendar and nativel
    ```env
    GOOGLE_CLIENT_ID=your_client_id_here
    GOOGLE_CLIENT_SECRET=your_client_secret_here
-   PUBLIC_URL=http://localhost:4321
+   PUBLIC_URL=http://localhost:8080
    ```
 4. Build the Astro project:
    ```bash
@@ -39,9 +39,9 @@ Goaly automatically finds free time in your existing Google Calendar and nativel
    ```
 5. Start the Deno server:
    ```bash
-   deno run --env -A server.js
+   deno run -A dist/server/entry.mjs
    ```
-6. Open `http://localhost:8000` in your browser.
+6. Open `http://localhost:8080` in your browser.
 
 ## Next Steps & Future Features
 
@@ -54,7 +54,7 @@ Goaly automatically finds free time in your existing Google Calendar and nativel
 
 - **Frontend:** Astro (SSR), UnoCSS
 - **Backend:** Deno custom server
-- **Database:** SQLite (`better-sqlite3`)
+- **Database:** SQLite (`node:sqlite`)
 - **Authentication:** Google OAuth 2.0 (Offline token access)
 
 ## Acknowledgements

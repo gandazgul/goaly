@@ -123,7 +123,7 @@ export async function scheduleGoal(user, goal) {
   for (const slot of scheduledSlots) {
     const eventDetails = {
       summary: `${emoji} ${goal.name}`,
-      description: `Scheduled by Goal Digger.\nDuration: ${duration_minutes} min`,
+      description: `Scheduled by Goaly.\nDuration: ${duration_minutes} min`,
       start: { dateTime: new Date(slot.start).toISOString(), timeZone: 'UTC' },
       end: { dateTime: new Date(slot.end).toISOString(), timeZone: 'UTC' },
       colorId: color || '9', // Default to Blueberry/Purple
