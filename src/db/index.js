@@ -1,8 +1,8 @@
-// Use a dynamic import trick to bypass Rollup/esbuild trying to resolve it during build
-const moduleName = 'jsr:@db/sqlite';
-const { Database } = await import(/* @vite-ignore */ moduleName);
+// Hide from esbuild using new Function
+const importDynamic = new Function('modulePath', 'return import(modulePath)');
+const { DatabaseSync } = await importDynamic('node:sqlite');
 
-export const db = new Database('goaly.db');
+export const db = new DatabaseSync('goaly.db');
 
 // Initialize schema
 db.exec(`

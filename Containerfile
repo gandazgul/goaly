@@ -1,0 +1,56 @@
+# Stage 1: Build the Astro project
+FROM debian:12-slim AS builder
+
+# Install build dependencies for native modules (like SQLite)
+RUN apt-get update && apt-get install -y curl unzip build-essential && rm -rf /var/lib/apt/lists/*
+
+# Install Deno
+COPY --from=denoland/deno:bin /deno /usr/local/bin/deno
+
+# Configure Deno cache directory
+ENV DENO_DIR=/deno-dir
+RUN mkdir -p /deno-dir
+
+WORKDIR /app
+
+# Copy configuration and lock files
+COPY package.json deno.json deno.lock ./
+
+# Install dependencies and approve build scripts for native bindings
+RUN deno install --allow-scripts
+
+# Copy the rest of the application
+COPY . .
+
+# Build the Astro project
+RUN deno task build
+
+# Cache server dependencies to ensure they are available offline
+RUN deno cache dist/server/entry.mjs
+
+# Stage 2: Production runtime using distroless
+FROM gcr.io/distroless/cc-debian12
+
+# Copy the Deno binary
+COPY --from=denoland/deno:bin /deno /bin/deno
+
+WORKDIR /app
+
+# Copy the Deno cache so dependencies are available offline
+ENV DENO_DIR=/deno-dir
+COPY --from=builder /deno-dir /deno-dir
+
+# Copy the built Astro output
+COPY --from=builder /app/dist ./dist
+
+# Copy node_modules for native bindings compatibility
+COPY --from=builder /app/node_modules ./node_modules
+
+# Astro's Deno adapter defaults to port 8085
+ENV HOST=0.0.0.0
+ENV PORT=8080
+
+EXPOSE 8080
+
+# Run the Astro server with all permissions inside the container sandbox
+CMD ["/bin/deno", "run", "-A", "dist/server/entry.mjs"]
