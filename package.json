@@ -1,9 +1,9 @@
 {
-  "name": "temp_astro",
+  "name": "goaly",
   "type": "module",
   "version": "0.1.0",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=24.14.0"
   },
   "dependencies": {
     "@astrojs/deno": "^5.0.1",

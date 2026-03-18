@@ -30,7 +30,7 @@ Goaly automatically finds free time in your existing Google Calendar and nativel
    ```env
    GOOGLE_CLIENT_ID=your_client_id_here
    GOOGLE_CLIENT_SECRET=your_client_secret_here
-   PUBLIC_URL=http://localhost:8000
+   PUBLIC_URL=http://localhost:4321
    ```
 4. Build the Astro project:
    ```bash
@@ -56,6 +56,10 @@ Goaly automatically finds free time in your existing Google Calendar and nativel
 - **Backend:** Deno custom server
 - **Database:** SQLite (`better-sqlite3`)
 - **Authentication:** Google OAuth 2.0 (Offline token access)
+
+## Acknowledgements
+
+Built with the help of [OpenCode](https://opencode.ai/) using Gemini.
 
 ## License
 
