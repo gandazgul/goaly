@@ -1,8 +1,12 @@
 import { db } from "../db/index.js";
 
 /**
+ * @typedef {import('./scheduler.js').User} User
+ */
+
+/**
  * Gets a valid Google access token for the user, refreshing it if necessary.
- * @param {Object} user The user object from the DB
+ * @param {User} user The user object from the DB
  * @returns {Promise<string>} The valid access token
  */
 export async function getValidAccessToken(user) {
@@ -10,8 +14,8 @@ export async function getValidAccessToken(user) {
     throw new Error("User has no refresh token");
   }
 
-  const GOOGLE_CLIENT_ID = Deno.env.get("GOOGLE_CLIENT_ID");
-  const GOOGLE_CLIENT_SECRET = Deno.env.get("GOOGLE_CLIENT_SECRET");
+  const GOOGLE_CLIENT_ID = Deno.env.get("GOOGLE_CLIENT_ID") || "";
+  const GOOGLE_CLIENT_SECRET = Deno.env.get("GOOGLE_CLIENT_SECRET") || "";
 
   try {
     const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {

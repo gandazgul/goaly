@@ -1,5 +1,23 @@
 import { getValidAccessToken } from "./google.js";
 
+/**
+ * @typedef {import('./scheduler.js').User} User
+ */
+
+/**
+ * @typedef {Object} CalendarEvent
+ * @property {string} id
+ * @property {string} summary
+ * @property {string} start
+ * @property {string} end
+ */
+
+/**
+ * @param {User} user
+ * @param {Date} timeMin
+ * @param {Date} timeMax
+ * @returns {Promise<CalendarEvent[]>}
+ */
 export async function fetchCalendarEvents(user, timeMin, timeMax) {
   const token = await getValidAccessToken(user);
 
@@ -26,14 +44,19 @@ export async function fetchCalendarEvents(user, timeMin, timeMax) {
   }
 
   // Filter to just the relevant bits: start and end times
-  return (data.items || []).map((event) => ({
+  return (data.items || []).map((/** @type {any} */ event) => ({
     id: event.id,
     summary: event.summary,
     start: event.start?.dateTime || event.start?.date,
     end: event.end?.dateTime || event.end?.date,
-  })).filter((e) => e.start && e.end);
+  })).filter((/** @type {any} */ e) => e.start && e.end);
 }
 
+/**
+ * @param {User} user
+ * @param {any} eventDetails
+ * @returns {Promise<any>}
+ */
 export async function createCalendarEvent(user, eventDetails) {
   const token = await getValidAccessToken(user);
 
@@ -57,6 +80,11 @@ export async function createCalendarEvent(user, eventDetails) {
   return data;
 }
 
+/**
+ * @param {User} user
+ * @param {string} eventId
+ * @returns {Promise<boolean>}
+ */
 export async function deleteCalendarEvent(user, eventId) {
   const token = await getValidAccessToken(user);
 

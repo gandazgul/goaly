@@ -10,9 +10,31 @@ const TIME_BLOCKS = {
 };
 
 /**
+ * @typedef {Object} Goal
+ * @property {number} id
+ * @property {string} name
+ * @property {number} times_per_week
+ * @property {number} duration_minutes
+ * @property {"morning"|"afternoon"|"evening"|"night"} time_preference
+ * @property {string} color
+ * @property {string} icon
+ */
+
+/**
+ * @typedef {Object} User
+ * @property {number} id
+ * @property {string} email
+ * @property {string} refresh_token
+ */
+
+/**
  * Maps the chosen UnoCSS icon to an emoji for the Google Calendar event title
+ *
+ * @param {string} iconClass - The UnoCSS icon class name (e.g., 'i-ph-star-fill').
+ * @returns {string} The corresponding emoji character.
  */
 function getEmojiForIcon(iconClass) {
+  /** @type {Record<string, string>} */
   const map = {
     "i-ph-star-fill": "⭐",
     "i-ph-book-fill": "📚",
@@ -34,8 +56,9 @@ function getEmojiForIcon(iconClass) {
  * Finds free slots and schedules a goal for a given user.
  * For MVP, we look up to 7 days in the future to fulfill the required "times_per_week".
  *
- * @param {Object} user DB User
- * @param {Object} goal DB Goal
+ * @param {User} user - DB User
+ * @param {Goal} goal - DB Goal
+ * @returns {Promise<void>}
  */
 export async function scheduleGoal(user, goal) {
   const {
@@ -71,20 +94,23 @@ export async function scheduleGoal(user, goal) {
 
   // Get a list of day strings (e.g. "2023-10-04") where this goal is already scheduled
   // so we don't schedule multiple instances of the same goal on the same day.
-  const daysWithInstances = new Set(existingInstances.map((inst) => {
-    return new Date(inst.start_time).toISOString().split("T")[0];
-  }));
+  const daysWithInstances = new Set(
+    existingInstances.map((/** @type {any} */ inst) => {
+      return new Date(inst.start_time).toISOString().split("T")[0];
+    }),
+  );
 
-  const neededInstances = times_per_week - existingInstances.length;
+  const neededInstances = goal.times_per_week - existingInstances.length;
 
   // 2. Fetch busy blocks from Google Calendar
   const busyEvents = await fetchCalendarEvents(user, timeMin, timeMax);
-  const busyRanges = busyEvents.map((e) => ({
+  const busyRanges = busyEvents.map((/** @type {any} */ e) => ({
     start: new Date(e.start).getTime(),
     end: new Date(e.end).getTime(),
-  })).sort((a, b) => a.start - b.start);
+  })).sort((/** @type {any} */ a, /** @type {any} */ b) => a.start - b.start);
 
-  const durationMs = duration_minutes * 60 * 1000;
+  const durationMs = goal.duration_minutes * 60 * 1000;
+  /** @type {Array<{start: number, end: number}>} */
   const scheduledSlots = [];
 
   // Iterate over the next 7 days to find free slots
@@ -123,7 +149,7 @@ export async function scheduleGoal(user, goal) {
       const candidateEnd = cursor + durationMs;
 
       // Check for overlap with any busy event
-      const overlap = busyRanges.some((busy) => {
+      const overlap = busyRanges.some((/** @type {any} */ busy) => {
         // overlap condition: candidate starts before busy ends AND candidate ends after busy starts
         return cursor < busy.end && candidateEnd > busy.start;
       });
