@@ -21,11 +21,12 @@
     "jsr:@std/path@1.0": "1.0.9",
     "jsr:@std/path@^1.1.4": "1.1.4",
     "jsr:@std/streams@^1.0.17": "1.0.17",
-    "npm:@astrojs/deno@^5.0.1": "5.0.1_astro@6.0.5",
+    "npm:@astrojs/deno@^5.0.1": "5.0.1_astro@6.0.5__@types+node@25.5.0_@types+node@25.5.0",
     "npm:@iconify-json/ph@^1.2.2": "1.2.2",
+    "npm:@types/node@^25.5.0": "25.5.0",
     "npm:@unocss/astro@^66.6.6": "66.6.6_vite@8.0.0",
     "npm:@unocss/reset@^66.6.6": "66.6.6",
-    "npm:astro@^6.0.5": "6.0.5",
+    "npm:astro@^6.0.5": "6.0.5_@types+node@25.5.0",
     "npm:unocss@^66.6.6": "66.6.6_@unocss+astro@66.6.6__vite@8.0.0_vite@8.0.0"
   },
   "jsr": {
@@ -111,7 +112,7 @@
     "@astrojs/compiler@3.0.1": {
       "integrity": "sha512-z97oYbdebO5aoWzuJ/8q5hLK232+17KcLZ7cJ8BCWk6+qNzVxn/gftC0KzMBUTD8WAaBkPpNSQK6PXLnNrZ0CA=="
     },
-    "@astrojs/deno@5.0.1_astro@6.0.5": {
+    "@astrojs/deno@5.0.1_astro@6.0.5__@types+node@25.5.0_@types+node@25.5.0": {
       "integrity": "sha512-nYztGqHqC+q3A9ynjj3gblAkO/ZylDwahjVTx+2DvZgX4U+BJU/gL5BZkNtL+P10opCKJi29NvvVFvk6jwZHmA==",
       "dependencies": [
         "astro",
@@ -1018,6 +1019,12 @@
         "@types/unist"
       ]
     },
+    "@types/node@25.5.0": {
+      "integrity": "sha512-jp2P3tQMSxWugkCUKLRPVUpGaL5MVFwF8RDuSRztfwgN1wmqJeMSbKlnEtQqU8UrhTmzEmZdu2I6v2dpp7XIxw==",
+      "dependencies": [
+        "undici-types"
+      ]
+    },
     "@types/unist@3.0.3": {
       "integrity": "sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q=="
     },
@@ -1225,7 +1232,7 @@
     "array-iterate@2.0.1": {
       "integrity": "sha512-I1jXZMjAgCMmxT4qxXfPXa6SthSoE8h6gkSI9BGGNv8mP8G/v0blc+qFnZu6K42vTOiuME596QaLO0TP3Lk0xg=="
     },
-    "astro@6.0.5": {
+    "astro@6.0.5_@types+node@25.5.0": {
       "integrity": "sha512-JnLCwaoCaRXIHuIB8yNztJrd7M3hXrHUMAoQmeXtEBKxRu/738REhaCZ1lapjrS9HlpHsWTu3JUXTERB/0PA7g==",
       "dependencies": [
         "@astrojs/compiler",
@@ -2677,6 +2684,9 @@
     "uncrypto@0.1.3": {
       "integrity": "sha512-Ql87qFHB3s/De2ClA9e0gsnS6zXG27SkTiSJwjCc9MebbfapQfuPzumMIUMi38ezPZVNFcHI9sUIepeQfw8J8Q=="
     },
+    "undici-types@7.18.2": {
+      "integrity": "sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w=="
+    },
     "unified@11.0.5": {
       "integrity": "sha512-xKvGhPWw3k84Qjh8bI3ZeJjqnyadK+GEFtazSfZv/rKeTkTjOJho6mFqh2SM96iIcZokxiOpg78GazTSg8+KHA==",
       "dependencies": [
@@ -2833,9 +2843,10 @@
         "vfile-message"
       ]
     },
-    "vite@7.3.1": {
+    "vite@7.3.1_@types+node@25.5.0": {
       "integrity": "sha512-w+N7Hifpc3gRjZ63vYBXA56dvvRlNWRczTdmCBBa+CotUzAPf5b7YMdMR/8CQoeYE5LX3W4wj6RYTgonm1b9DA==",
       "dependencies": [
+        "@types/node",
         "esbuild@0.27.4",
         "fdir",
         "picomatch@4.0.3",
@@ -2846,9 +2857,12 @@
       "optionalDependencies": [
         "fsevents"
       ],
+      "optionalPeers": [
+        "@types/node"
+      ],
       "bin": true
     },
-    "vitefu@1.1.2_vite@7.3.1": {
+    "vitefu@1.1.2_vite@7.3.1__@types+node@25.5.0_@types+node@25.5.0": {
       "integrity": "sha512-zpKATdUbzbsycPFBN71nS2uzBUQiVnFoOrr2rvqv34S1lcAgMKKkjWleLGeiJlZ8lwCXvtWaRn7R3ZC16SYRuw==",
       "dependencies": [
         "vite"
@@ -2946,6 +2960,7 @@
       "dependencies": [
         "npm:@astrojs/deno@^5.0.1",
         "npm:@iconify-json/ph@^1.2.2",
+        "npm:@types/node@^25.5.0",
         "npm:@unocss/astro@^66.6.6",
         "npm:@unocss/reset@^66.6.6",
         "npm:astro@^6.0.5",

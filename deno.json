@@ -4,14 +4,21 @@
     "start": "deno run -A --env npm:astro dev",
     "build": "deno run -A --env npm:astro build",
     "preview": "deno run -A --env npm:astro preview",
-    "astro": "deno run -A --env npm:astro"
+    "astro": "deno run -A --env npm:astro",
+    "ci": "deno lint && deno fmt --check && deno check"
   },
   "fmt": {
-    "exclude": [".idea"]
+    "exclude": [
+      ".idea"
+    ]
   },
+  "exclude": [
+    ".astro",
+    "dist",
+    ".idea"
+  ],
   "compilerOptions": {
-    "checkJs": true,
-    "allowJs": true
+    "checkJs": true
   },
   "imports": {
     "@db/sqlite": "jsr:@db/sqlite@^0.13.0",

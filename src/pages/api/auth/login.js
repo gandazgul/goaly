@@ -1,6 +1,6 @@
 /** @type {import('astro').APIRoute} */
 export const GET = ({ redirect }) => {
-  const GOOGLE_CLIENT_ID = Deno.env.get("GOOGLE_CLIENT_ID");
+  const GOOGLE_CLIENT_ID = Deno.env.get("GOOGLE_CLIENT_ID") || "";
   const PUBLIC_URL = Deno.env.get("PUBLIC_URL") || "http://localhost:8000";
   const REDIRECT_URI = `${PUBLIC_URL}/api/auth/callback`;
 

@@ -9,8 +9,8 @@ export const GET = async ({ request }) => {
     return new Response("No code provided", { status: 400 });
   }
 
-  const GOOGLE_CLIENT_ID = Deno.env.get("GOOGLE_CLIENT_ID");
-  const GOOGLE_CLIENT_SECRET = Deno.env.get("GOOGLE_CLIENT_SECRET");
+  const GOOGLE_CLIENT_ID = Deno.env.get("GOOGLE_CLIENT_ID") || "";
+  const GOOGLE_CLIENT_SECRET = Deno.env.get("GOOGLE_CLIENT_SECRET") || "";
   const PUBLIC_URL = Deno.env.get("PUBLIC_URL") || "http://localhost:8000";
   const REDIRECT_URI = `${PUBLIC_URL}/api/auth/callback`;
 

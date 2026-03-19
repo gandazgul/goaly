@@ -12,15 +12,24 @@ export const POST = async ({ request, redirect }) => {
 
   try {
     const formData = await request.formData();
-    const name = formData.get("name");
-    const timesPerWeek = parseInt(formData.get("times_per_week") || "1", 10);
-    const durationMinutes = parseInt(
-      formData.get("duration_minutes") || "30",
+    const name = formData.get("name")?.toString() || "";
+    const timesPerWeek = parseInt(
+      formData.get("times_per_week")?.toString() || "1",
       10,
     );
-    const timePreference = formData.get("time_preference"); // morning, afternoon, evening, night
-    const color = formData.get("color") || "9";
-    const icon = formData.get("icon") || "i-ph-star-fill";
+    const durationMinutes = parseInt(
+      formData.get("duration_minutes")?.toString() || "30",
+      10,
+    );
+    const timePreferenceStr = formData.get("time_preference")?.toString() ||
+      "afternoon";
+    /** @type {"morning"|"afternoon"|"evening"|"night"} */
+    const timePreference =
+      ["morning", "afternoon", "evening", "night"].includes(timePreferenceStr)
+        ? /** @type {any} */ (timePreferenceStr)
+        : "afternoon";
+    const color = formData.get("color")?.toString() || "9";
+    const icon = formData.get("icon")?.toString() || "i-ph-star-fill";
 
     if (!name || !timesPerWeek || !durationMinutes || !timePreference) {
       return new Response("Missing required fields", { status: 400 });

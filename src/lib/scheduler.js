@@ -28,6 +28,17 @@ const TIME_BLOCKS = {
  */
 
 /**
+ * @typedef {Object} GoalInstance
+ * @property {string} start_time
+ */
+
+/**
+ * @typedef {Object} TimeRange
+ * @property {number} start
+ * @property {number} end
+ */
+
+/**
  * Maps the chosen UnoCSS icon to an emoji for the Google Calendar event title
  *
  * @param {string} iconClass - The UnoCSS icon class name (e.g., 'i-ph-star-fill').
@@ -95,7 +106,7 @@ export async function scheduleGoal(user, goal) {
   // Get a list of day strings (e.g. "2023-10-04") where this goal is already scheduled
   // so we don't schedule multiple instances of the same goal on the same day.
   const daysWithInstances = new Set(
-    existingInstances.map((/** @type {any} */ inst) => {
+    existingInstances.map((/** @type {GoalInstance} */ inst) => {
       return new Date(inst.start_time).toISOString().split("T")[0];
     }),
   );
@@ -104,10 +115,14 @@ export async function scheduleGoal(user, goal) {
 
   // 2. Fetch busy blocks from Google Calendar
   const busyEvents = await fetchCalendarEvents(user, timeMin, timeMax);
-  const busyRanges = busyEvents.map((/** @type {any} */ e) => ({
+  const busyRanges = busyEvents.map((
+    /** @type {import('./calendar.js').CalendarEvent} */ e,
+  ) => ({
     start: new Date(e.start).getTime(),
     end: new Date(e.end).getTime(),
-  })).sort((/** @type {any} */ a, /** @type {any} */ b) => a.start - b.start);
+  })).sort((/** @type {TimeRange} */ a, /** @type {TimeRange} */ b) =>
+    a.start - b.start
+  );
 
   const durationMs = goal.duration_minutes * 60 * 1000;
   /** @type {Array<{start: number, end: number}>} */
@@ -149,7 +164,7 @@ export async function scheduleGoal(user, goal) {
       const candidateEnd = cursor + durationMs;
 
       // Check for overlap with any busy event
-      const overlap = busyRanges.some((/** @type {any} */ busy) => {
+      const overlap = busyRanges.some((/** @type {TimeRange} */ busy) => {
         // overlap condition: candidate starts before busy ends AND candidate ends after busy starts
         return cursor < busy.end && candidateEnd > busy.start;
       });
