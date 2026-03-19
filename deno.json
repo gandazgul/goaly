@@ -1,7 +1,7 @@
 {
   "tasks": {
     "dev": "deno run -A --env npm:astro dev",
-    "start": "deno run -A --env npm:astro dev",
+    "start": "deno -WREN dist/server/entry.mjs",
     "build": "deno run -A --env npm:astro build",
     "preview": "deno run -A --env npm:astro preview",
     "astro": "deno run -A --env npm:astro",
@@ -19,9 +19,5 @@
   ],
   "compilerOptions": {
     "checkJs": true
-  },
-  "imports": {
-    "@db/sqlite": "jsr:@db/sqlite@^0.13.0",
-    "@std/http": "jsr:@std/http@^1.0.25"
   }
 }

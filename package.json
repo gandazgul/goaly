@@ -6,7 +6,7 @@
     "node": ">=24.14.0"
   },
   "dependencies": {
-    "@astrojs/deno": "^5.0.1",
+    "@deno/astro-adapter": "^0.3.2",
     "@iconify-json/ph": "^1.2.2",
     "@types/node": "^25.5.0",
     "@unocss/astro": "^66.6.6",

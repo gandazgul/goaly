@@ -1,5 +1,5 @@
 import { defineConfig, passthroughImageService } from "astro/config";
-import deno from "@astrojs/deno";
+import deno from "@deno/astro-adapter";
 import unocss from "unocss/astro";
 
 // https://astro.build/config
