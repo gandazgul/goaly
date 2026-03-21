@@ -56,6 +56,8 @@ _Make Goaly feel like a native app on any device._
 - [ ] **Installability:** Add PWA configuration to prompt Android and iOS users
       to "Add to Home Screen" for a full-screen, native-like experience.
 
+More details on [PHASE3.spec.md](./PHASE3.spec.md).
+
 ### Phase 4: Notifications & Automated Rescheduling
 
 _Proactive features using Deno Crons (carried over from initial implementation

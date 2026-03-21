@@ -21,3 +21,4 @@ dist/
 
 # playwright
 .playwright-cli/
+test-results/
