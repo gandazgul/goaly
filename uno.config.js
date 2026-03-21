@@ -3,6 +3,15 @@ import fs from "node:fs";
 
 export default defineConfig({
   safelist: [
+    "i-ph-trash",
+    "i-ph-trash-fill",
+    "i-ph-timer",
+    "i-ph-calendar-plus",
+    "i-ph-sun-dim",
+    "i-ph-sun",
+    "i-ph-cloud-moon",
+    "i-ph-moon-stars",
+    "i-ph-clock",
     "i-ph-star-fill",
     "i-ph-book-fill",
     "i-ph-barbell-fill",
