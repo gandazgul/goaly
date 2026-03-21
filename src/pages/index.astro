@@ -5,6 +5,7 @@ import { getUserFromRequest } from '../lib/auth.js';
 import GoalForm from '../components/GoalForm.astro';
 import GoalCard from '../components/GoalCard.astro';
 import Toast from '../components/Toast.astro';
+import { calculateWeeklyStreak, getWeeklyProgress } from '../utils/streakCalc.js';
 
 // Get current user if any
 const user = getUserFromRequest(Astro.request);
@@ -13,6 +14,17 @@ const user = getUserFromRequest(Astro.request);
 let goals = [];
 if (user) {
   goals = db.prepare('SELECT * FROM goals WHERE user_id = ? ORDER BY created_at DESC').all(user.id);
+  
+  const nowISO = new Date().toISOString();
+  
+  for (const goal of goals) {
+    const instances = db.prepare('SELECT * FROM goal_instances WHERE goal_id = ? ORDER BY start_time').all(goal.id);
+    
+    goal.nextInstance = instances.find(i => i.status === 'pending' && i.start_time > nowISO) || null;
+    goal.weeklyProgress = getWeeklyProgress(instances);
+    goal.lifetimeCompletions = instances.filter(i => i.status === 'completed').length;
+    goal.streak = calculateWeeklyStreak(instances, goal.times_per_week);
+  }
 }
 
 // Check for success param
@@ -55,6 +67,10 @@ const successParam = url.searchParams.get('success');
 						</div>
 					</div>
 					<div class="flex flex-wrap justify-center gap-3">
+						<button onclick="document.getElementById('goal-modal').showModal()" class="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium border border-blue-700 flex items-center gap-2">
+							<div class="i-ph-plus-bold"></div>
+							Add Goal
+						</button>
 						<form action="/api/goals/sync" method="POST">
 							<button type="submit" class="text-sm bg-indigo-50 text-indigo-700 px-4 py-2 rounded-lg hover:bg-indigo-100 transition font-medium border border-indigo-200 flex items-center gap-2">
 								<span class="i-ph-arrows-clockwise-fill"></span>
@@ -72,8 +88,8 @@ const successParam = url.searchParams.get('success');
 					</div>
 				</div>
 
-				<div class="grid md:grid-cols-2 gap-8 items-start">
-					<div class="order-2 md:order-1">
+				<div class="w-full">
+					<div>
 						<h2 class="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-2">
 							<span class="i-ph-list-checks-fill text-teal-500"></span>
 							Your Active Goals
@@ -94,9 +110,14 @@ const successParam = url.searchParams.get('success');
 						)}
 					</div>
 
-					<div class="order-1 md:order-2">
-						<GoalForm />
-					</div>
+					<dialog id="goal-modal" class="p-0 rounded-2xl shadow-xl backdrop:bg-gray-900/50 border border-gray-100 max-w-md w-full bg-white open:animate-fade-in open:animate-duration-200">
+						<div class="relative">
+							<button onclick="document.getElementById('goal-modal').close()" class="absolute top-6 right-6 text-gray-400 hover:text-gray-600 z-10">
+								<div class="i-ph-x-bold text-xl"></div>
+							</button>
+							<GoalForm />
+						</div>
+					</dialog>
 				</div>
 			</div>
 		) : (
@@ -113,4 +134,21 @@ const successParam = url.searchParams.get('success');
 			</div>
 		)}
 	</div>
+
+	<script>
+		const dialog = document.getElementById('goal-modal');
+		if (dialog) {
+			dialog.addEventListener('click', (e) => {
+				const dialogDimensions = dialog.getBoundingClientRect();
+				if (
+					e.clientX < dialogDimensions.left ||
+					e.clientX > dialogDimensions.right ||
+					e.clientY < dialogDimensions.top ||
+					e.clientY > dialogDimensions.bottom
+				) {
+					dialog.close();
+				}
+			});
+		}
+	</script>
 </Layout>

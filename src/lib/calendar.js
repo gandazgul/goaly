@@ -142,3 +142,69 @@ export async function deleteCalendarEvent(user, eventId) {
 
   return true;
 }
+
+/**
+ * @param {User} user
+ * @param {string} eventId
+ * @param {string} status - 'completed', 'skipped', or 'missed'
+ * @returns {Promise<boolean>}
+ */
+export async function updateCalendarEventTitle(user, eventId, status) {
+  const MOCK_AUTH = Deno.env.get("MOCK_AUTH") === "true";
+  if (MOCK_AUTH) {
+    return true;
+  }
+
+  const token = await getValidAccessToken(user);
+
+  // 1. Fetch current event to get summary
+  const getResponse = await fetch(
+    `https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    },
+  );
+
+  if (!getResponse.ok) {
+    // If not found, skip safely
+    if (getResponse.status === 404 || getResponse.status === 410) return false;
+    throw new Error(`Google Calendar API Error: failed to fetch event`);
+  }
+
+  const event = await getResponse.json();
+  let summary = event.summary || "";
+
+  // 2. Remove existing status prefix if any
+  summary = summary.replace(/^✅\s*/, "").replace(/^❌\s*/, "");
+
+  // 3. Add new status prefix
+  if (status === "completed") {
+    summary = `✅ ${summary}`;
+  } else if (status === "skipped" || status === "missed") {
+    summary = `❌ ${summary}`;
+  }
+
+  // 4. PATCH the event
+  const patchResponse = await fetch(
+    `https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ summary }),
+    },
+  );
+
+  if (!patchResponse.ok) {
+    throw new Error(
+      `Google Calendar API Error: failed to update event summary`,
+    );
+  }
+
+  return true;
+}
