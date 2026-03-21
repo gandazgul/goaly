@@ -118,7 +118,7 @@ const progressPercent = Math.min(100, Math.round(((goal.weeklyProgress || 0) / g
           </h4>
           <div class="flex justify-between text-sm font-medium mb-1">
             <span class="text-gray-700">{goal.weeklyProgress || 0} / {goal.times_per_week} completed</span>
-            <span class="text-indigo-600">{progressPercent}%</span>
+            <span class="text-#FFBF00">{progressPercent}%</span>
           </div>
           <div class="w-full bg-gray-200 rounded-full h-2.5">
             <div class={`h-2.5 rounded-full transition-all duration-500 ${progressPercent === 100 ? 'bg-green-500' : 'bg-indigo-600'}`} style={`width: ${progressPercent}%`}></div>

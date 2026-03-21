@@ -95,6 +95,14 @@ our [ROADMAP.md](ROADMAP.md).
 - **Database:** SQLite (`node:sqlite`)
 - **Authentication:** Google OAuth 2.0 (Offline token access)
 
+### Design
+
+Primary color: #005F6A 
+Accent: #FFBF00
+Background: #FFFFFF
+Main text: #1f2937 
+Muted text: #6b7280
+
 ## Acknowledgements
 
 Built with the help of [OpenCode](https://opencode.ai/) using Gemini.
