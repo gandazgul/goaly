@@ -43,6 +43,8 @@ _Give users more control over when their goals happen._
 - [ ] **Timezone Handling:** Ensure time blocks correctly respect the user's
       local timezone settings when querying Google Calendar.
 
+More details on [PHASE2.spec.md](./PHASE2.spec.md).
+
 ### Phase 3: PWA & Mobile Experience
 
 _Make Goaly feel like a native app on any device._

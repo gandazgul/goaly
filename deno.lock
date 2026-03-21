@@ -19,7 +19,9 @@
     "npm:@types/node@^25.5.0": "25.5.0",
     "npm:@unocss/astro@^66.6.6": "66.6.6_vite@8.0.0",
     "npm:@unocss/reset@^66.6.6": "66.6.6",
+    "npm:astro@*": "6.0.5_typescript@5.9.3",
     "npm:astro@^6.0.5": "6.0.5_typescript@5.9.3",
+    "npm:dayjs@^1.11.20": "1.11.20",
     "npm:unocss@^66.6.6": "66.6.6_@unocss+astro@66.6.6__vite@8.0.0_vite@8.0.0"
   },
   "jsr": {
@@ -1258,6 +1260,9 @@
       "dependencies": [
         "css-tree@2.2.1"
       ]
+    },
+    "dayjs@1.11.20": {
+      "integrity": "sha512-YbwwqR/uYpeoP4pu043q+LTDLFBLApUP6VxRihdfNTqu4ubqMlGDLd6ErXhEgsyvY0K6nCs7nggYumAN+9uEuQ=="
     },
     "debug@4.4.3": {
       "integrity": "sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==",
@@ -2815,17 +2820,16 @@
     "https://deno.land/std@0.177.0/version.ts": "259c8866ec257c3511b437baa95205a86761abaef852a9b2199072accb2ef046"
   },
   "workspace": {
-    "packageJson": {
-      "dependencies": [
-        "npm:@deno/astro-adapter@~0.3.2",
-        "npm:@iconify-json/ph@^1.2.2",
-        "npm:@playwright/test@^1.58.2",
-        "npm:@types/node@^25.5.0",
-        "npm:@unocss/astro@^66.6.6",
-        "npm:@unocss/reset@^66.6.6",
-        "npm:astro@^6.0.5",
-        "npm:unocss@^66.6.6"
-      ]
-    }
+    "dependencies": [
+      "npm:@deno/astro-adapter@~0.3.2",
+      "npm:@iconify-json/ph@^1.2.2",
+      "npm:@playwright/test@^1.58.2",
+      "npm:@types/node@^25.5.0",
+      "npm:@unocss/astro@^66.6.6",
+      "npm:@unocss/reset@^66.6.6",
+      "npm:astro@^6.0.5",
+      "npm:dayjs@^1.11.20",
+      "npm:unocss@^66.6.6"
+    ]
   }
 }
