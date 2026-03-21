@@ -1,5 +1,37 @@
+import { db } from "../../../db/index.js";
+
 /** @type {import('astro').APIRoute} */
 export const GET = ({ redirect }) => {
+  const MOCK_AUTH = Deno.env.get("MOCK_AUTH") === "true";
+
+  if (MOCK_AUTH) {
+    const mockGoogleId = "mock-google-id-123";
+    const mockEmail = "mockuser@example.com";
+    
+    // Upsert mock user
+    const existingUser = db.prepare("SELECT id FROM users WHERE google_id = ?").get(mockGoogleId);
+    if (!existingUser) {
+      db.prepare(`
+        INSERT INTO users (email, google_id, access_token, refresh_token) 
+        VALUES (?, ?, ?, ?)
+      `).run(mockEmail, mockGoogleId, "mock-access-token", "mock-refresh-token");
+    }
+
+    const headers = new Headers();
+    headers.append(
+      "Set-Cookie",
+      `session_id=${mockGoogleId}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${
+        60 * 60 * 24 * 30
+      }`,
+    );
+    headers.append("Location", "/");
+
+    return new Response(null, {
+      status: 302,
+      headers,
+    });
+  }
+
   const GOOGLE_CLIENT_ID = Deno.env.get("GOOGLE_CLIENT_ID") || "";
   const PUBLIC_URL = Deno.env.get("PUBLIC_URL") || "http://localhost:8000";
   const REDIRECT_URI = `${PUBLIC_URL}/api/auth/callback`;

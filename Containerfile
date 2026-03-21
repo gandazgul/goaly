@@ -8,8 +8,8 @@ RUN apt-get update && apt-get install -y curl unzip build-essential && rm -rf /v
 COPY --from=denoland/deno:bin /deno /usr/local/bin/deno
 
 # Configure Deno cache directory
-ENV DENO_DIR=/deno-dir
-RUN mkdir -p /deno-dir
+ENV DENO_DIR=/deno-cache
+RUN mkdir -p /deno-cache
 
 WORKDIR /app
 
@@ -32,21 +32,23 @@ RUN deno cache dist/server/entry.mjs
 FROM gcr.io/distroless/cc-debian12
 
 # Copy the Deno binary
-COPY --from=denoland/deno:bin /deno /bin/deno
+COPY --from=denoland/deno:bin --chown=nonroot:nonroot /deno /bin/deno
+
+# This is the UID of the nonroot user in distroless images, ensuring we run without root privileges
+USER 65532
 
 WORKDIR /app
 
 # Copy the Deno cache so dependencies are available offline
-ENV DENO_DIR=/deno-dir
-COPY --from=builder /deno-dir /deno-dir
+ENV DENO_DIR=/deno-cache
+COPY --from=builder --chown=nonroot:nonroot /deno-cache /deno-cache
 
 # Copy the built Astro output
-COPY --from=builder /app/dist ./dist
+COPY --from=builder --chown=nonroot:nonroot /app/dist ./dist
 
 # Copy node_modules for native bindings compatibility
-COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder --chown=nonroot:nonroot /app/node_modules ./node_modules
 
-# Astro's Deno adapter defaults to port 8085
 ENV HOST=0.0.0.0
 ENV PORT=8080
 

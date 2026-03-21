@@ -36,6 +36,11 @@ import { getValidAccessToken } from "./google.js";
  * @returns {Promise<CalendarEvent[]>}
  */
 export async function fetchCalendarEvents(user, timeMin, timeMax) {
+  const MOCK_AUTH = Deno.env.get("MOCK_AUTH") === "true";
+  if (MOCK_AUTH) {
+    return [];
+  }
+
   const token = await getValidAccessToken(user);
 
   const params = new URLSearchParams({
@@ -75,6 +80,11 @@ export async function fetchCalendarEvents(user, timeMin, timeMax) {
  * @returns {Promise<GoogleCalendarEvent>}
  */
 export async function createCalendarEvent(user, eventDetails) {
+  const MOCK_AUTH = Deno.env.get("MOCK_AUTH") === "true";
+  if (MOCK_AUTH) {
+    return { id: "mock_event_" + Date.now(), ...eventDetails };
+  }
+
   const token = await getValidAccessToken(user);
 
   const response = await fetch(
@@ -103,6 +113,11 @@ export async function createCalendarEvent(user, eventDetails) {
  * @returns {Promise<boolean>}
  */
 export async function deleteCalendarEvent(user, eventId) {
+  const MOCK_AUTH = Deno.env.get("MOCK_AUTH") === "true";
+  if (MOCK_AUTH) {
+    return true;
+  }
+
   const token = await getValidAccessToken(user);
 
   const response = await fetch(
