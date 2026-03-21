@@ -15,23 +15,15 @@ This document outlines the planned features and technical milestones for Goaly.
 - **Branding:** Goaly logo, manifest, and basic PWA assets configured.
 - **Profile UI:** Users can input their Gotify server URL and App Token for
   future notifications.
+- **Goal Tracking & Progress Analytics:** 
+  - Ability to mark a scheduled goal instance as "Done", "Skipped", or "Missed" directly from the Goaly dashboard.
+  - Weekly progress and lifetime statistics tracking.
+  - Visual progress bars and streak indicators on Goal Cards.
+  - Google Calendar Sync: Automatically updates Google Calendar event titles with completion statuses (✅ or ❌).
 
 ---
 
 ## 🚀 Upcoming Phases
-
-### Phase 1: Goal Tracking & Progress Analytics
-
-_Shift from just scheduling goals to actively tracking their completion._
-
-- [ ] Add the ability to mark a scheduled goal instance as "Done", "Skipped", or
-      "Missed" directly from the Goaly dashboard.
-- [ ] Display weekly progress (e.g., "3 of 5 workouts completed this week").
-- [ ] Display lifetime statistics (e.g., "Total reading sessions completed:
-      42").
-- [ ] Add simple visual progress bars or streak indicators to the Goal Cards.
-
-More details on [PHASE1.spec.md](./PHASE1.spec.md).
 
 ### Phase 2: User Customization & Time Blocks
 

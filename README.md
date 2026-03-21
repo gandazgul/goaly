@@ -67,19 +67,16 @@ deno task build
 
 Goaly is actively being developed. Here is a look at what's coming next:
 
-### Phase 1: Goal Tracking & Progress Analytics (In Progress)
+### User Customization & Time Blocks
 
-- **Status Tracking:** Mark scheduled goals as "Done", "Skipped", or "Missed"
-  directly from the dashboard.
-- **Progress Visualizations:** Track weekly progress and lifetime statistics.
-- **Streaks:** Visual indicators for consecutive weeks of meeting targets.
-- **Calendar Sync:** Automatically update Google Calendar event titles with
-  completion statuses (✅ or ❌).
+- **Customizable Time Blocks:** Update the Settings/Profile page so users
+  can define exactly what hours "Morning", "Afternoon", "Evening", and
+  "Night" mean to them.
+- **Timezone Handling:** Ensure time blocks correctly respect the user's
+  local timezone settings when querying Google Calendar.
 
-### Future Phases
+### Future
 
-- **User Customization & Time Blocks:** Define exact hours for "Morning",
-  "Afternoon", "Evening", and "Night".
 - **PWA & Mobile Experience:** Responsive design, offline fallback, and "Add to
   Home Screen" support.
 - **Notifications & Automated Rescheduling:** Push notifications via Gotify and
