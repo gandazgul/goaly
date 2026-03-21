@@ -7,7 +7,7 @@ const icons = [
 ];
 
 const colors = [
-  { id: '1', bg: 'bg-[#005F6A]', default: true }, // Blueberry
+  { id: '1', bg: 'bg-[#005F6A]', default: true }, // Petrol Blue
   { id: '2', bg: 'bg-[#0b8043]' }, // Basil
   { id: '3', bg: 'bg-[#33b679]' }, // Sage
   { id: '4', bg: 'bg-[#bada55]' }, // Tomato
@@ -16,7 +16,7 @@ const colors = [
   { id: '7', bg: 'bg-[#039be5]' }, // Peacock
   { id: '8', bg: 'bg-[#d50000]' }, // Tomato
   { id: '9', bg: 'bg-[#e67c73]' }, // Flamingo
-  { id: '10', bg: 'bg-[#f4511e]' }, // Tangerine
+  { id: '10', bg: 'bg-[#f4511e]' }, // Amber
   { id: '11', bg: 'bg-[#FFBF00]' }, // Banana
   { id: '12', bg: 'bg-[#616161]' }, // Graphite
 ];
@@ -50,7 +50,7 @@ const colors = [
           {icons.map((icon, index) => (
             <label class="cursor-pointer relative">
               <input type="radio" name="icon" value={icon} class="peer sr-only" checked={index === 0} />
-              <div class="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600 hover:bg-gray-50 transition text-gray-500 text-xl">
+              <div class="w-10 h-10 rounded-lg border-2 border-gray-200 flex items-center justify-center peer-checked:bg-[#005F6A]/10 peer-checked:border-white peer-checked:ring-2 peer-checked:ring-[#005F6A] peer-checked:text-[#005F6A] hover:bg-gray-50 hover:scale-110 transition text-gray-500 text-xl">
                 <div class={icon}></div>
               </div>
             </label>
@@ -65,7 +65,7 @@ const colors = [
           {colors.map(color => (
             <label class="cursor-pointer relative">
               <input type="radio" name="color" value={color.id} class="peer sr-only" checked={color.default} />
-              <div class={`w-8 h-8 rounded-full ${color.bg} border-2 border-transparent peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-blue-500 hover:scale-110 transition shadow-sm`}></div>
+              <span class={`block w-10 h-10 rounded-lg ${color.bg} border-2 border-#ffffff peer-checked:border-white peer-checked:ring-2 peer-checked:ring-[#005F6A] hover:scale-110 transition shadow-sm`}></span>
             </label>
           ))}
         </div>
@@ -113,7 +113,7 @@ const colors = [
         
         <label class="cursor-pointer">
           <input type="radio" name="time_preference" value="morning" class="peer sr-only" required />
-          <div class="rounded-lg border border-gray-200 px-3 py-3 text-center peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-700 hover:bg-gray-50 transition">
+          <div class="rounded-lg border-2 border-gray-200 px-3 py-3 text-center peer-checked:bg-[#005F6A]/10 peer-checked:border-white peer-checked:ring-2 peer-checked:ring-[#005F6A] peer-checked:text-[#005F6A] hover:bg-gray-50 transition">
             <div class="i-ph-sun-dim mb-1 text-xl mx-auto text-yellow-500"></div>
             <span class="text-sm font-medium block">Morning</span>
             <span class="text-xs text-gray-500 block whitespace-nowrap">6am - 12pm</span>
@@ -122,7 +122,7 @@ const colors = [
         
         <label class="cursor-pointer">
           <input type="radio" name="time_preference" value="afternoon" class="peer sr-only" />
-          <div class="rounded-lg border border-gray-200 px-3 py-3 text-center peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-700 hover:bg-gray-50 transition">
+          <div class="rounded-lg border-2 border-gray-200 px-3 py-3 text-center peer-checked:bg-[#005F6A]/10 peer-checked:border-white peer-checked:ring-2 peer-checked:ring-[#005F6A] peer-checked:text-[#005F6A] hover:bg-gray-50 transition">
             <div class="i-ph-sun text-xl mb-1 mx-auto text-orange-500"></div>
             <span class="text-sm font-medium block">Afternoon</span>
             <span class="text-xs text-gray-500 block whitespace-nowrap">12pm - 5pm</span>
@@ -131,7 +131,7 @@ const colors = [
         
         <label class="cursor-pointer">
           <input type="radio" name="time_preference" value="evening" class="peer sr-only" />
-          <div class="rounded-lg border border-gray-200 px-3 py-3 text-center peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-700 hover:bg-gray-50 transition">
+          <div class="rounded-lg border-2 border-gray-200 px-3 py-3 text-center peer-checked:bg-[#005F6A]/10 peer-checked:border-white peer-checked:ring-2 peer-checked:ring-[#005F6A] peer-checked:text-[#005F6A] hover:bg-gray-50 transition">
             <div class="i-ph-cloud-moon text-xl mb-1 mx-auto text-indigo-500"></div>
             <span class="text-sm font-medium block">Evening</span>
             <span class="text-xs text-gray-500 block whitespace-nowrap">5pm - 9pm</span>
@@ -140,7 +140,7 @@ const colors = [
         
         <label class="cursor-pointer">
           <input type="radio" name="time_preference" value="night" class="peer sr-only" />
-          <div class="rounded-lg border border-gray-200 px-3 py-3 text-center peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-700 hover:bg-gray-50 transition">
+          <div class="rounded-lg border-2 border-gray-200 px-3 py-3 text-center peer-checked:bg-[#005F6A]/10 peer-checked:border-white peer-checked:ring-2 peer-checked:ring-[#005F6A] peer-checked:text-[#005F6A] hover:bg-gray-50 transition">
             <div class="i-ph-moon-stars text-xl mb-1 mx-auto text-purple-600"></div>
             <span class="text-sm font-medium block">Night</span>
             <span class="text-xs text-gray-500 block whitespace-nowrap">9pm - 12am</span>
