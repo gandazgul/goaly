@@ -21,7 +21,8 @@ based on your personal time preferences, duration, and frequency.
 
 ### Prerequisites
 
-- [Deno](https://deno.land/) installed
+- [Deno](https://deno.land/) installed (used for both server and package
+  management)
 - A Google Cloud Project with the **Google Calendar API** enabled
 - An OAuth 2.0 Client ID and Secret (Web Application type, redirect URI:
   `http://localhost:8080/api/auth/callback`)
@@ -50,15 +51,42 @@ based on your personal time preferences, duration, and frequency.
    ```
 6. Open `http://localhost:8080` in your browser.
 
-## Next Steps & Future Features
+## Development
 
-- **Notifications:** Integration with self-hosted push notification services
-  like [Gotify](https://gotify.net/).
-- **Progress Tracking:** Visualizations to track your goal completion rates and
-  streaks.
-- **Rescheduling:** Automatically find new slots for missed or skipped goals.
-- **Customizable Time Blocks:** Allow users to define their own hours for
-  Morning, Afternoon, Evening, and Night.
+This project uses Deno for package management and tooling. After making any code
+changes, always run the following commands to format your code, catch linting
+errors, and verify the build:
+
+```bash
+deno fmt
+deno lint
+deno task build
+```
+
+## Roadmap & Upcoming Features
+
+Goaly is actively being developed. Here is a look at what's coming next:
+
+### Phase 1: Goal Tracking & Progress Analytics (In Progress)
+
+- **Status Tracking:** Mark scheduled goals as "Done", "Skipped", or "Missed"
+  directly from the dashboard.
+- **Progress Visualizations:** Track weekly progress and lifetime statistics.
+- **Streaks:** Visual indicators for consecutive weeks of meeting targets.
+- **Calendar Sync:** Automatically update Google Calendar event titles with
+  completion statuses (✅ or ❌).
+
+### Future Phases
+
+- **User Customization & Time Blocks:** Define exact hours for "Morning",
+  "Afternoon", "Evening", and "Night".
+- **PWA & Mobile Experience:** Responsive design, offline fallback, and "Add to
+  Home Screen" support.
+- **Notifications & Automated Rescheduling:** Push notifications via Gotify and
+  smart rescheduling for missed goals.
+
+For more details on upcoming features and technical specifications, check out
+our [ROADMAP.md](ROADMAP.md).
 
 ## Tech Stack
 

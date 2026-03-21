@@ -31,6 +31,8 @@ _Shift from just scheduling goals to actively tracking their completion._
       42").
 - [ ] Add simple visual progress bars or streak indicators to the Goal Cards.
 
+More details on [PHASE1.spec.md](./PHASE1.spec.md).
+
 ### Phase 2: User Customization & Time Blocks
 
 _Give users more control over when their goals happen._

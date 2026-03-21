@@ -7,14 +7,20 @@ export const GET = ({ redirect }) => {
   if (MOCK_AUTH) {
     const mockGoogleId = "mock-google-id-123";
     const mockEmail = "mockuser@example.com";
-    
+
     // Upsert mock user
-    const existingUser = db.prepare("SELECT id FROM users WHERE google_id = ?").get(mockGoogleId);
+    const existingUser = db.prepare("SELECT id FROM users WHERE google_id = ?")
+      .get(mockGoogleId);
     if (!existingUser) {
       db.prepare(`
         INSERT INTO users (email, google_id, access_token, refresh_token) 
         VALUES (?, ?, ?, ?)
-      `).run(mockEmail, mockGoogleId, "mock-access-token", "mock-refresh-token");
+      `).run(
+        mockEmail,
+        mockGoogleId,
+        "mock-access-token",
+        "mock-refresh-token",
+      );
     }
 
     const headers = new Headers();
