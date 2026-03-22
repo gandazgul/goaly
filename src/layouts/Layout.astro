@@ -11,8 +11,18 @@
 		<meta name="generator" content={Astro.generator} />
 		<title>Goaly</title>
 	</head>
-	<body>
-		<slot />
+	<body class="flex flex-col min-h-screen bg-gray-50">
+		<main class="flex-grow">
+			<slot />
+		</main>
+		<footer class="bg-white border-t border-gray-200 py-6 text-center text-sm text-gray-500 font-sans mt-auto">
+			<div class="flex justify-center gap-4">
+				<a href="/privacy" class="hover:text-blue-600 transition">Privacy Policy</a>
+				<span>&middot;</span>
+				<a href="/terms" class="hover:text-blue-600 transition">Terms of Service</a>
+			</div>
+			<p class="mt-2">&copy; {new Date().getFullYear()} Goaly. All rights reserved.</p>
+		</footer>
 	</body>
 </html>
 
