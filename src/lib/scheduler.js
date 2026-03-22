@@ -1,13 +1,6 @@
 import { createCalendarEvent, fetchCalendarEvents } from "./calendar.js";
-import { db } from "../db/index.js";
-
-// Default user settings (will later come from User profile)
-const TIME_BLOCKS = {
-  morning: { startHour: 6, endHour: 12 },
-  afternoon: { startHour: 12, endHour: 17 },
-  evening: { startHour: 17, endHour: 21 },
-  night: { startHour: 21, endHour: 24 },
-};
+import { db } from "../db";
+import dayjs from "./dateUtils.js";
 
 /**
  * @typedef {Object} Goal
@@ -25,6 +18,11 @@ const TIME_BLOCKS = {
  * @property {number} id
  * @property {string} email
  * @property {string} refresh_token
+ * @property {string} timezone
+ * @property {number} morning_start
+ * @property {number} afternoon_start
+ * @property {number} evening_start
+ * @property {number} night_start
  */
 
 /**
@@ -80,21 +78,41 @@ export async function scheduleGoal(user, goal) {
     color,
     icon,
   } = goal;
-  const block = TIME_BLOCKS[time_preference] || TIME_BLOCKS.afternoon;
+
+  const userTimezone = user.timezone || "UTC";
+
+  const userSettings = {
+    morning: {
+      startHour: user.morning_start ?? 6,
+      endHour: user.afternoon_start ?? 12,
+    },
+    afternoon: {
+      startHour: user.afternoon_start ?? 12,
+      endHour: user.evening_start ?? 17,
+    },
+    evening: {
+      startHour: user.evening_start ?? 17,
+      endHour: user.night_start ?? 21,
+    },
+    night: {
+      startHour: user.night_start ?? 21,
+      endHour: user.morning_start ?? 6,
+    },
+  };
+
+  const block = userSettings[time_preference] || userSettings.afternoon;
   const emoji = getEmojiForIcon(icon);
 
-  const now = new Date();
-
   // Lookahead: Next 7 days
-  const timeMin = new Date(now);
-  const timeMax = new Date(now);
-  timeMax.setDate(timeMax.getDate() + 7);
+  const now = dayjs().tz(userTimezone);
+  const timeMin = now;
+  const timeMax = now.add(7, "day");
 
   // 1. Fetch existing instances for this goal in the next 7 days to avoid over-scheduling
   const existingInstances = db.prepare(`
     SELECT start_time FROM goal_instances 
     WHERE goal_id = ? AND start_time >= ? AND start_time <= ? AND status != 'deleted'
-  `).all(goalId, timeMin.toISOString(), timeMax.toISOString());
+  `).all(goalId, timeMin.utc().toISOString(), timeMax.utc().toISOString());
 
   if (existingInstances.length >= times_per_week) {
     console.log(
@@ -107,14 +125,18 @@ export async function scheduleGoal(user, goal) {
   // so we don't schedule multiple instances of the same goal on the same day.
   const daysWithInstances = new Set(
     existingInstances.map((/** @type {GoalInstance} */ inst) => {
-      return new Date(inst.start_time).toISOString().split("T")[0];
+      return dayjs(inst.start_time).tz(userTimezone).format("YYYY-MM-DD");
     }),
   );
 
   const neededInstances = goal.times_per_week - existingInstances.length;
 
   // 2. Fetch busy blocks from Google Calendar
-  const busyEvents = await fetchCalendarEvents(user, timeMin, timeMax);
+  const busyEvents = await fetchCalendarEvents(
+    user,
+    timeMin.toDate(),
+    timeMax.toDate(),
+  );
   const busyRanges = busyEvents.map((
     /** @type {import('./calendar.js').CalendarEvent} */ e,
   ) => ({
@@ -132,40 +154,41 @@ export async function scheduleGoal(user, goal) {
   for (let i = 0; i < 7; i++) {
     if (scheduledSlots.length >= neededInstances) break;
 
-    const currentDay = new Date(now);
-    currentDay.setDate(now.getDate() + i);
+    const currentDay = now.add(i, "day");
+    const currentDayString = currentDay.format("YYYY-MM-DD");
 
     // Check if this goal is already scheduled today
-    const currentDayString = currentDay.toISOString().split("T")[0];
     if (daysWithInstances.has(currentDayString)) {
       continue;
     }
 
-    // Determine the boundaries for this day's time block
-    const blockStart = new Date(currentDay);
-    blockStart.setHours(block.startHour, 0, 0, 0);
+    // Determine the boundaries for this day's time block in user's timezone
+    const blockStart = currentDay.hour(block.startHour).minute(0).second(0)
+      .millisecond(0);
+    let blockEnd = currentDay.hour(block.endHour).minute(0).second(0)
+      .millisecond(0);
 
-    const blockEnd = new Date(currentDay);
-    if (block.endHour === 24) {
-      blockEnd.setHours(23, 59, 59, 999);
-    } else {
-      blockEnd.setHours(block.endHour, 0, 0, 0);
+    // If the end hour is mathematically less than or equal to start hour,
+    // it implies the block crosses midnight (e.g. Night: 21 to 6).
+    // In this case, blockEnd is on the next day.
+    if (block.endHour <= block.startHour) {
+      blockEnd = blockEnd.add(1, "day");
     }
 
-    // Skip if the block is already in the past
-    if (blockEnd.getTime() <= Date.now()) {
+    // Skip if the block is already entirely in the past
+    if (blockEnd.valueOf() <= now.valueOf()) {
       continue;
     }
 
     // Adjust start time if today and the block has already started
-    let cursor = Math.max(blockStart.getTime(), Date.now());
+    let cursor = Math.max(blockStart.valueOf(), now.valueOf());
+
     // We step through the block in 15-minute increments
-    while (cursor + durationMs <= blockEnd.getTime()) {
+    while (cursor + durationMs <= blockEnd.valueOf()) {
       const candidateEnd = cursor + durationMs;
 
       // Check for overlap with any busy event
       const overlap = busyRanges.some((/** @type {TimeRange} */ busy) => {
-        // overlap condition: candidate starts before busy ends AND candidate ends after busy starts
         return cursor < busy.end && candidateEnd > busy.start;
       });
 
@@ -190,32 +213,38 @@ export async function scheduleGoal(user, goal) {
 
   console.log(`Found ${scheduledSlots.length} slots for goal ${goal.name}`);
 
-  // 2. Actually create the Google Calendar Events and DB instances
+  // 3. Actually create the Google Calendar Events and DB instances
   for (const slot of scheduledSlots) {
+    const startIso = dayjs(slot.start).tz(userTimezone).format();
+    const endIso = dayjs(slot.end).tz(userTimezone).format();
+
     const eventDetails = {
       summary: `${emoji} ${goal.name}`,
-      description: `Scheduled by Goaly.\nDuration: ${duration_minutes} min`,
-      start: { dateTime: new Date(slot.start).toISOString(), timeZone: "UTC" },
-      end: { dateTime: new Date(slot.end).toISOString(), timeZone: "UTC" },
+      description: `Scheduled by Goaly.\\nDuration: ${duration_minutes} min`,
+      start: { dateTime: startIso, timeZone: userTimezone },
+      end: { dateTime: endIso, timeZone: userTimezone },
       colorId: color || "9", // Default to Blueberry/Purple
     };
 
     try {
       const gcalEvent = await createCalendarEvent(user, eventDetails);
 
-      // Save to database
+      // Save to database, enforcing UTC for start_time and end_time
+      const utcStart = dayjs(slot.start).utc().toISOString();
+      const utcEnd = dayjs(slot.end).utc().toISOString();
+
       db.prepare(`
         INSERT INTO goal_instances (goal_id, calendar_event_id, start_time, end_time, status)
         VALUES (?, ?, ?, ?, 'pending')
       `).run(
         goalId,
         gcalEvent.id,
-        new Date(slot.start).toISOString(),
-        new Date(slot.end).toISOString(),
+        utcStart,
+        utcEnd,
       );
       console.log(
         `Scheduled instance for ${goal.name} at ${
-          new Date(slot.start).toLocaleString()
+          dayjs(slot.start).tz(userTimezone).format()
         }`,
       );
     } catch (err) {

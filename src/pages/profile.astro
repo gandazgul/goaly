@@ -11,6 +11,8 @@ if (!user) {
 
 const url = new URL(Astro.request.url);
 const successParam = url.searchParams.get('success');
+
+const timezones = Intl.supportedValuesOf('timeZone');
 ---
 
 <Layout>
@@ -19,7 +21,7 @@ const successParam = url.searchParams.get('success');
       
       <div class="flex items-center justify-between mb-8">
         <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
-          <div class="i-ph-user-circle-gear-fill text-teal-500"></div>
+          <span class="i-ph-user-circle-gear-fill text-teal-500"></span>
           Settings
         </h1>
         <a href="/" class="text-sm bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition font-medium border border-gray-300">
@@ -31,45 +33,101 @@ const successParam = url.searchParams.get('success');
         <Toast type="success" title="Success!" message="Your settings have been updated." />
       )}
 
-      <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-        <h2 class="text-xl font-bold mb-4 text-gray-800">Gotify Notifications</h2>
-        <p class="text-gray-600 text-sm mb-4">
-          Enter the URL for your Gotify server and an Application Token to receive push notifications for your upcoming goals.
-        </p>
-        
-        <form method="POST" action="/api/settings/update" class="space-y-4">
-          <div>
-            <label for="gotify_url" class="block text-sm font-medium text-gray-700 mb-1">Gotify Server URL</label>
-            <input 
-              type="url" 
-              id="gotify_url" 
-              name="gotify_url" 
-              placeholder="https://gotify.example.com"
-              value={user.gotify_url || ''}
-              class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-            />
-          </div>
+      <form method="POST" action="/api/settings/update" class="space-y-6">
+        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+          <h2 class="text-xl font-bold mb-4 text-gray-800">Time & Scheduling Preferences</h2>
+          
+          <div class="space-y-6">
+            <div>
+              <label for="timezone" class="block text-sm font-medium text-gray-700 mb-1">Timezone</label>
+              <select 
+                id="timezone" 
+                name="timezone" 
+                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+              >
+                {timezones.map(tz => (
+                  <option value={tz} selected={user.timezone === tz}>{tz}</option>
+                ))}
+              </select>
+            </div>
 
-          <div>
-            <label for="gotify_token" class="block text-sm font-medium text-gray-700 mb-1">Application Token</label>
-            <input 
-              type="text" 
-              id="gotify_token" 
-              name="gotify_token" 
-              placeholder="A..."
-              value={user.gotify_token || ''}
-              class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-            />
+            <div>
+              <h3 class="text-md font-semibold text-gray-800 mb-2">Continuous Time Blocks</h3>
+              <p class="text-sm text-gray-600 mb-4">
+                Define the start hour (0-23) for each time block. A block continues until the start of the next one.
+              </p>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label for="morning_start" class="block text-sm font-medium text-gray-700 mb-1">Morning Start Hour</label>
+                  <input type="number" id="morning_start" name="morning_start" min="0" max="23" value={user.morning_start ?? 6} class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" />
+                </div>
+                <div>
+                  <label for="afternoon_start" class="block text-sm font-medium text-gray-700 mb-1">Afternoon Start Hour</label>
+                  <input type="number" id="afternoon_start" name="afternoon_start" min="0" max="23" value={user.afternoon_start ?? 12} class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" />
+                </div>
+                <div>
+                  <label for="evening_start" class="block text-sm font-medium text-gray-700 mb-1">Evening Start Hour</label>
+                  <input type="number" id="evening_start" name="evening_start" min="0" max="23" value={user.evening_start ?? 17} class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" />
+                </div>
+                <div>
+                  <label for="night_start" class="block text-sm font-medium text-gray-700 mb-1">Night Start Hour</label>
+                  <input type="number" id="night_start" name="night_start" min="0" max="23" value={user.night_start ?? 21} class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" />
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
 
-          <div class="text-right pt-2">
-            <button type="submit" class="bg-blue-600 text-white font-semibold py-2 px-5 rounded-lg hover:bg-blue-700 transition shadow-md">
-              Save Settings
-            </button>
+        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+          <h2 class="text-xl font-bold mb-4 text-gray-800">Gotify Notifications</h2>
+          <p class="text-gray-600 text-sm mb-4">
+            Enter the URL for your Gotify server and an Application Token to receive push notifications for your upcoming goals.
+          </p>
+          
+          <div class="space-y-4">
+            <div>
+              <label for="gotify_url" class="block text-sm font-medium text-gray-700 mb-1">Gotify Server URL</label>
+              <input 
+                type="url" 
+                id="gotify_url" 
+                name="gotify_url" 
+                placeholder="https://gotify.example.com"
+                value={user.gotify_url || ''}
+                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+              />
+            </div>
+
+            <div>
+              <label for="gotify_token" class="block text-sm font-medium text-gray-700 mb-1">Application Token</label>
+              <input 
+                type="text" 
+                id="gotify_token" 
+                name="gotify_token" 
+                placeholder="A..."
+                value={user.gotify_token || ''}
+                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+              />
+            </div>
           </div>
-        </form>
-      </div>
+        </div>
+
+        <div class="text-right pt-2">
+          <button type="submit" class="bg-blue-600 text-white font-semibold py-2 px-8 rounded-lg hover:bg-blue-700 transition shadow-md text-lg">
+            Save Settings
+          </button>
+        </div>
+      </form>
       
     </div>
   </div>
+
+  <script>
+    const tzSelect = document.getElementById('timezone') as HTMLSelectElement;
+    if (tzSelect && !tzSelect.querySelector('option[selected]')) {
+      const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (userTz) {
+        tzSelect.value = userTz;
+      }
+    }
+  </script>
 </Layout>

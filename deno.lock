@@ -15,6 +15,7 @@
     "jsr:@std/streams@^1.0.17": "1.0.17",
     "npm:@deno/astro-adapter@~0.3.2": "0.3.2_astro@6.0.5__typescript@5.9.3_typescript@5.9.3",
     "npm:@iconify-json/ph@^1.2.2": "1.2.2",
+    "npm:@playwright/test@*": "1.58.2",
     "npm:@playwright/test@^1.58.2": "1.58.2",
     "npm:@types/node@^25.5.0": "25.5.0",
     "npm:@unocss/astro@^66.6.6": "66.6.6_vite@8.0.0",

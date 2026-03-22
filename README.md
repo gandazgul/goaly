@@ -69,11 +69,11 @@ Goaly is actively being developed. Here is a look at what's coming next:
 
 ### User Customization & Time Blocks
 
-- **Customizable Time Blocks:** Update the Settings/Profile page so users
-  can define exactly what hours "Morning", "Afternoon", "Evening", and
-  "Night" mean to them.
-- **Timezone Handling:** Ensure time blocks correctly respect the user's
-  local timezone settings when querying Google Calendar.
+- **Customizable Time Blocks:** Update the Settings/Profile page so users can
+  define exactly what hours "Morning", "Afternoon", "Evening", and "Night" mean
+  to them.
+- **Timezone Handling:** Ensure time blocks correctly respect the user's local
+  timezone settings when querying Google Calendar.
 
 ### Future
 
@@ -94,11 +94,11 @@ our [ROADMAP.md](ROADMAP.md).
 
 ### Design
 
-Primary color: #005F6A 
-Accent: #FFBF00
-Background: #FFFFFF
-Main text: #1f2937 
-Muted text: #6b7280
+- Primary color: #005F6A 
+- Accent: #FFBF00
+- Background: #FFFFFF
+- Main text: #1f2937 
+- Muted text: #6b7280
 
 ## Acknowledgements
 

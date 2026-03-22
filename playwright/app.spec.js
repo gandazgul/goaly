@@ -31,7 +31,8 @@ test.describe("Goaly App", () => {
     await page.goto("http://localhost:8080/api/auth/login");
 
     // Make sure we are on the dashboard
-    await expect(page.getByRole("heading", { name: "Your Active Goals" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Your Active Goals" }))
+      .toBeVisible();
 
     // Open the New Goal modal
     await page.getByRole("button", { name: "Add Goal" }).click();
@@ -65,7 +66,10 @@ test.describe("Goaly App", () => {
     page.on("dialog", (dialog) => dialog.accept());
 
     // First open the goal details accordion
-    await page.locator("details", { hasText: testGoalName }).getByRole("heading", { name: testGoalName }).click();
+    await page.locator("details", { hasText: testGoalName }).getByRole(
+      "heading",
+      { name: testGoalName },
+    ).click();
 
     // Find the specific delete button for this goal and click it
     await page.locator("details", { hasText: testGoalName }).getByRole(
@@ -80,55 +84,74 @@ test.describe("Goaly App", () => {
 
   test("should update user settings", async ({ page }) => {
     await page.goto("http://localhost:8080/api/auth/login");
-    await expect(page.getByRole("heading", { name: "Your Active Goals" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Your Active Goals" }))
+      .toBeVisible();
 
     await page.getByRole("link", { name: "Settings" }).click();
     await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
 
-    await page.getByRole("textbox", { name: "Gotify Server URL" }).fill("https://gotify.test.com");
-    await page.getByRole("textbox", { name: "Application Token" }).fill("testtoken123");
+    await page.getByRole("textbox", { name: "Gotify Server URL" }).fill(
+      "https://gotify.test.com",
+    );
+    await page.getByRole("textbox", { name: "Application Token" }).fill(
+      "testtoken123",
+    );
     await page.getByRole("button", { name: "Save Settings" }).click();
 
-    await expect(page.getByText("Your settings have been updated.")).toBeVisible();
+    await expect(page.getByText("Your settings have been updated."))
+      .toBeVisible();
   });
 
   test("should sync calendar", async ({ page }) => {
     await page.goto("http://localhost:8080/api/auth/login");
-    await expect(page.getByRole("heading", { name: "Your Active Goals" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Your Active Goals" }))
+      .toBeVisible();
 
     await page.getByRole("button", { name: "Sync Calendar" }).click();
 
-    await expect(page.getByText("Your goals have been re-scheduled into your calendar.")).toBeVisible();
+    await expect(
+      page.getByText("Your goals have been re-scheduled into your calendar."),
+    ).toBeVisible();
   });
 
   test("should allow user to logout", async ({ page }) => {
     await page.goto("http://localhost:8080/api/auth/login");
-    await expect(page.getByRole("heading", { name: "Your Active Goals" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Your Active Goals" }))
+      .toBeVisible();
 
     await page.getByRole("link", { name: "Logout" }).click();
 
-    await expect(page.getByRole("heading", { name: "Build Better Habits" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Build Better Habits" }))
+      .toBeVisible();
   });
 
   test("should mark a goal instance as done", async ({ page }) => {
     await page.goto("http://localhost:8080/api/auth/login");
-    
+
     // Open the New Goal modal
     await page.getByRole("button", { name: "Add Goal" }).click();
     await expect(page.getByRole("heading", { name: "New Goal" })).toBeVisible();
 
     const testGoalName = `Action Test Goal ${Date.now()}`;
-    await page.getByRole("textbox", { name: "I want to..." }).fill(testGoalName);
-    await page.locator("label").filter({ hasText: "Morning 6am - 12pm" }).click();
+    await page.getByRole("textbox", { name: "I want to..." }).fill(
+      testGoalName,
+    );
+    await page.locator("label").filter({ hasText: "Morning 6am - 12pm" })
+      .click();
     await page.getByRole("button", { name: "Save Goal" }).click();
 
-    await expect(page.getByRole("heading", { name: testGoalName })).toBeVisible();
+    await expect(page.getByRole("heading", { name: testGoalName }))
+      .toBeVisible();
 
-    await page.locator("details", { hasText: testGoalName }).getByRole("heading", { name: testGoalName }).click();
+    await page.locator("details", { hasText: testGoalName }).getByRole(
+      "heading",
+      { name: testGoalName },
+    ).click();
 
     // If there is an instance, mark it as done. Sometimes the mock might not schedule one immediately.
-    const doneButton = page.locator("details", { hasText: testGoalName }).getByRole("button", { name: "✅ Done" });
-    
+    const doneButton = page.locator("details", { hasText: testGoalName })
+      .getByRole("button", { name: "✅ Done" });
+
     // Wait a little bit for UI to settle
     await page.waitForTimeout(500);
 
@@ -137,13 +160,21 @@ test.describe("Goaly App", () => {
       await doneButton.click();
       // Wait for page to reload after action
       await page.waitForURL("http://localhost:8080/");
-      await expect(page.getByRole("heading", { name: "Your Active Goals" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Your Active Goals" }))
+        .toBeVisible();
     }
-    
+
     // Clean up
     page.on("dialog", (dialog) => dialog.accept());
-    await page.locator("details", { hasText: testGoalName }).getByRole("heading", { name: testGoalName }).click();
-    await page.locator("details", { hasText: testGoalName }).getByRole("button", { name: "Delete Goal" }).click();
-    await expect(page.getByRole("heading", { name: testGoalName })).not.toBeVisible();
+    await page.locator("details", { hasText: testGoalName }).getByRole(
+      "heading",
+      { name: testGoalName },
+    ).click();
+    await page.locator("details", { hasText: testGoalName }).getByRole(
+      "button",
+      { name: "Delete Goal" },
+    ).click();
+    await expect(page.getByRole("heading", { name: testGoalName })).not
+      .toBeVisible();
   });
 });
