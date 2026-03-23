@@ -46,6 +46,9 @@ COPY --from=builder --chown=nonroot:nonroot /deno-cache /deno-cache
 # Copy the built Astro output
 COPY --from=builder --chown=nonroot:nonroot /app/dist .
 
+# Copy migrations for runtime execution
+COPY --from=builder --chown=nonroot:nonroot /app/src/db/migrations ./src/db/migrations
+
 # Copy node_modules for native bindings compatibility
 COPY --from=builder --chown=nonroot:nonroot /app/node_modules ./node_modules
 
