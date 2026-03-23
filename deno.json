@@ -12,6 +12,8 @@
     "@unocss/reset": "npm:@unocss/reset@^66.6.6",
     "astro": "npm:astro@^6.0.5",
     "dayjs": "npm:dayjs@^1.11.20",
+    "dayjs/plugin/utc.js": "npm:dayjs@^1.11.20/plugin/utc.js",
+    "dayjs/plugin/timezone.js": "npm:dayjs@^1.11.20/plugin/timezone.js",
     "unocss": "npm:unocss@^66.6.6"
   },
   "tasks": {
