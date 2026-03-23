@@ -51,6 +51,37 @@ based on your personal time preferences, duration, and frequency.
    ```
 6. Open `http://localhost:8080` in your browser.
 
+### Building and Running the Container
+
+1. Build the container using the provided `Containerfile`:
+   ```bash
+   docker build -t goaly -f Containerfile .
+   # or
+   podman build -t goaly -f Containerfile .
+   ```
+
+2. Run the container, providing the required environment variables:
+   - `GOOGLE_CLIENT_ID`: Your Google OAuth 2.0 Client ID.
+   - `GOOGLE_CLIENT_SECRET`: Your Google OAuth 2.0 Client Secret.
+   - `PUBLIC_URL`: The public URL where your instance is accessible (e.g.,
+     `http://localhost:8080`).
+   - `DB_PATH`: The path to the SQLite database file inside the container. It
+     defaults to `goaly.db` in the current working directory, but should be set
+     to a path inside a mounted volume for persistence (e.g., `/data/goaly.db`).
+
+   Example `docker run` command:
+   ```bash
+   docker run -d \
+     -p 8080:8080 \
+     -e GOOGLE_CLIENT_ID=your_client_id_here \
+     -e GOOGLE_CLIENT_SECRET=your_client_secret_here \
+     -e PUBLIC_URL=http://localhost:8080 \
+     -e DB_PATH=/data/goaly.db \
+     -v $(pwd)/data:/data \
+     --name goaly \
+     goaly
+   ```
+
 ## Development
 
 This project uses Deno for package management and tooling. After making any code
@@ -94,10 +125,10 @@ our [ROADMAP.md](ROADMAP.md).
 
 ### Design
 
-- Primary color: #005F6A 
+- Primary color: #005F6A
 - Accent: #FFBF00
 - Background: #FFFFFF
-- Main text: #1f2937 
+- Main text: #1f2937
 - Muted text: #6b7280
 
 ## Acknowledgements

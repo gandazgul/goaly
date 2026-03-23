@@ -6,7 +6,8 @@ import process from "node:process";
 const importDynamic = new Function("modulePath", "return import(modulePath)");
 const { DatabaseSync } = await importDynamic("node:sqlite");
 
-export const db = new DatabaseSync("goaly.db");
+const dbPath = process.env.DB_PATH || "goaly.db";
+export const db = new DatabaseSync(dbPath);
 
 // Initialize migrations table
 db.exec(`

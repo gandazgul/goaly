@@ -1,4 +1,4 @@
-import { db } from "../../../db";
+import { db } from "../../../db/index.js";
 import { getUserFromRequest } from "../../../lib/auth.js";
 
 /** @type {import('astro').APIRoute} */

@@ -1,4 +1,4 @@
-import { db } from "../db/index.js";
+import { db } from "../db";
 
 /**
  * @typedef {Object} User
@@ -8,6 +8,11 @@ import { db } from "../db/index.js";
  * @property {string} refresh_token
  * @property {string} gotify_url
  * @property {string} gotify_token
+ * @property {string} timezone
+ * @property {number} morning_start
+ * @property {number} afternoon_start
+ * @property {number} evening_start
+ * @property {number} night_start
  */
 
 /**
