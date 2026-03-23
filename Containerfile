@@ -1,5 +1,5 @@
 # Stage 1: Build the Astro project
-FROM debian:12-slim AS builder
+FROM docker.io/library/debian:12-slim AS builder
 
 # Install build dependencies for native modules (like SQLite)
 RUN apt-get update && apt-get install -y curl unzip build-essential && rm -rf /var/lib/apt/lists/*
@@ -14,7 +14,7 @@ RUN mkdir -p /deno-cache
 WORKDIR /app
 
 # Copy configuration and lock files
-COPY package.json deno.json deno.lock ./
+COPY deno.json deno.lock ./
 
 # Install dependencies and approve build scripts for native bindings
 RUN deno install --allow-scripts
@@ -44,7 +44,7 @@ ENV DENO_DIR=/deno-cache
 COPY --from=builder --chown=nonroot:nonroot /deno-cache /deno-cache
 
 # Copy the built Astro output
-COPY --from=builder --chown=nonroot:nonroot /app/dist ./dist
+COPY --from=builder --chown=nonroot:nonroot /app/dist .
 
 # Copy node_modules for native bindings compatibility
 COPY --from=builder --chown=nonroot:nonroot /app/node_modules ./node_modules
@@ -55,4 +55,4 @@ ENV PORT=8080
 EXPOSE 8080
 
 # Run the Astro server with all permissions inside the container sandbox
-CMD ["/bin/deno", "run", "-A", "dist/server/entry.mjs"]
+CMD ["/bin/deno", "run", "-A", "/app/server/entry.mjs"]
