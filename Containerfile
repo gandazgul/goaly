@@ -44,7 +44,10 @@ ENV DENO_DIR=/deno-cache
 COPY --from=builder --chown=nonroot:nonroot /deno-cache /deno-cache
 
 # Copy the built Astro output
-COPY --from=builder --chown=nonroot:nonroot /app/dist .
+COPY --from=builder --chown=nonroot:nonroot /app/dist ./
+
+# Copy Deno configuration for runtime import mappings
+COPY --from=builder --chown=nonroot:nonroot /app/deno.json /app/deno.lock ./
 
 # Copy migrations for runtime execution
 COPY --from=builder --chown=nonroot:nonroot /app/src/db/migrations ./src/db/migrations
