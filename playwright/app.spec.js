@@ -8,7 +8,7 @@ test.describe("Goaly App", () => {
 
   test("should display home page and login correctly", async ({ page }) => {
     // Assert home page elements
-    await expect(page.getByRole("heading", { name: "Goaly Logo Goaly" }))
+    await expect(page.getByRole("img", { name: "Goaly Logo" }))
       .toBeVisible();
     await expect(page.getByRole("heading", { name: "Build Better Habits" }))
       .toBeVisible();
