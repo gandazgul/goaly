@@ -6,9 +6,9 @@ export const POST = async ({ request }) => {
   const user = getUserFromRequest(request);
 
   if (!user) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { 
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json" },
     });
   }
 
@@ -17,9 +17,9 @@ export const POST = async ({ request }) => {
     const newTimezone = data.timezone;
 
     if (!newTimezone) {
-      return new Response(JSON.stringify({ error: "Timezone required" }), { 
+      return new Response(JSON.stringify({ error: "Timezone required" }), {
         status: 400,
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
       });
     }
 
@@ -31,15 +31,18 @@ export const POST = async ({ request }) => {
       `).run(newTimezone, user.id);
     }
 
-    return new Response(JSON.stringify({ success: true, timezone: newTimezone }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" }
-    });
+    return new Response(
+      JSON.stringify({ success: true, timezone: newTimezone }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   } catch (error) {
     console.error("Failed to update timezone:", error);
-    return new Response(JSON.stringify({ error: "Internal Server Error" }), { 
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 500,
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json" },
     });
   }
 };
