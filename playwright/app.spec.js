@@ -72,10 +72,13 @@ test.describe("Goaly App", () => {
     ).click();
 
     // Find the specific delete button for this goal and click it
-    await page.locator("details", { hasText: testGoalName }).getByRole(
-      "button",
-      { name: "Delete Goal" },
-    ).click();
+    await Promise.all([
+      page.waitForURL("**/?success=GoalDeleted", { timeout: 10000 }),
+      page.locator("details", { hasText: testGoalName }).getByRole(
+        "button",
+        { name: "Delete Goal" },
+      ).click(),
+    ]);
 
     // Verify it was deleted (it shouldn't be visible anymore)
     await expect(page.getByRole("heading", { name: testGoalName })).not
@@ -112,11 +115,15 @@ test.describe("Goaly App", () => {
     await expect(page.getByRole("heading", { name: "New Goal" })).toBeVisible();
 
     const testGoalName = `Sync Test Goal ${Date.now()}`;
-    await page.getByRole("textbox", { name: "I want to..." }).fill(testGoalName);
-    await page.locator("label").filter({ hasText: "Morning 6am - 12pm" }).click();
+    await page.getByRole("textbox", { name: "I want to..." }).fill(
+      testGoalName,
+    );
+    await page.locator("label").filter({ hasText: "Morning 6am - 12pm" })
+      .click();
     await page.getByRole("button", { name: "Save Goal" }).click();
 
-    await expect(page.getByRole("heading", { name: testGoalName })).toBeVisible();
+    await expect(page.getByRole("heading", { name: testGoalName }))
+      .toBeVisible();
 
     page.once("dialog", (dialog) => {
       dialog.accept().catch(() => {});
@@ -133,9 +140,18 @@ test.describe("Goaly App", () => {
 
     // Clean up
     page.on("dialog", (dialog) => dialog.accept());
-    await page.locator("details", { hasText: testGoalName }).getByRole("heading", { name: testGoalName }).click();
-    await page.locator("details", { hasText: testGoalName }).getByRole("button", { name: "Delete Goal" }).click();
-    await expect(page.getByRole("heading", { name: testGoalName })).not.toBeVisible();
+    await page.locator("details", { hasText: testGoalName }).getByRole(
+      "heading",
+      { name: testGoalName },
+    ).click();
+    await Promise.all([
+      page.waitForURL("**/?success=GoalDeleted", { timeout: 10000 }),
+      page.locator("details", { hasText: testGoalName }).getByRole("button", {
+        name: "Delete Goal",
+      }).click(),
+    ]);
+    await expect(page.getByRole("heading", { name: testGoalName })).not
+      .toBeVisible();
   });
 
   test("should allow user to logout", async ({ page }) => {
