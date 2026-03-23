@@ -1,5 +1,5 @@
 import { createCalendarEvent, fetchCalendarEvents } from "./calendar.js";
-import { db } from "../db";
+import { db } from "../db/index.js";
 import dayjs from "./dateUtils.js";
 
 /**

@@ -1,4 +1,4 @@
-import { db } from "../db";
+import { db } from "../db/index.js";
 
 /**
  * @typedef {Object} User
