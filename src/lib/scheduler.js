@@ -108,11 +108,39 @@ export async function scheduleGoal(user, goal) {
   const timeMin = now;
   const timeMax = now.add(7, "day");
 
-  // 1. Fetch existing instances for this goal in the next 7 days to avoid over-scheduling
-  const existingInstances = db.prepare(`
-    SELECT start_time FROM goal_instances 
+  // 1. Fetch busy blocks from Google Calendar
+  const busyEvents = await fetchCalendarEvents(
+    user,
+    timeMin.toDate(),
+    timeMax.toDate(),
+  );
+
+  const busyEventIds = new Set(
+    busyEvents.map((/** @type {import('./calendar.js').CalendarEvent} */ e) =>
+      e.id
+    ),
+  );
+
+  // 2. Fetch existing instances for this goal in the next 7 days
+  const rawExistingInstances = db.prepare(`
+    SELECT id, start_time, calendar_event_id FROM goal_instances 
     WHERE goal_id = ? AND start_time >= ? AND start_time <= ? AND status != 'deleted'
   `).all(goalId, timeMin.utc().toISOString(), timeMax.utc().toISOString());
+
+  // Filter out instances that were deleted from Google Calendar
+  const existingInstances = [];
+  for (const inst of rawExistingInstances) {
+    if (inst.calendar_event_id && !busyEventIds.has(inst.calendar_event_id)) {
+      // It was deleted from Google Calendar, so mark it deleted in DB
+      db.prepare("UPDATE goal_instances SET status = 'deleted' WHERE id = ?")
+        .run(inst.id);
+      console.log(
+        `Marked instance ${inst.id} of goal ${goal.name} as deleted because it's no longer in Google Calendar.`,
+      );
+    } else {
+      existingInstances.push(inst);
+    }
+  }
 
   if (existingInstances.length >= times_per_week) {
     console.log(
@@ -131,12 +159,6 @@ export async function scheduleGoal(user, goal) {
 
   const neededInstances = goal.times_per_week - existingInstances.length;
 
-  // 2. Fetch busy blocks from Google Calendar
-  const busyEvents = await fetchCalendarEvents(
-    user,
-    timeMin.toDate(),
-    timeMax.toDate(),
-  );
   const busyRanges = busyEvents.map((
     /** @type {import('./calendar.js').CalendarEvent} */ e,
   ) => ({
