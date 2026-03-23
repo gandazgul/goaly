@@ -107,6 +107,17 @@ test.describe("Goaly App", () => {
     await expect(page.getByRole("heading", { name: "Your Active Goals" }))
       .toBeVisible();
 
+    // Create a goal first so that there are instances to delete during sync
+    await page.getByRole("button", { name: "Add Goal" }).click();
+    await expect(page.getByRole("heading", { name: "New Goal" })).toBeVisible();
+
+    const testGoalName = `Sync Test Goal ${Date.now()}`;
+    await page.getByRole("textbox", { name: "I want to..." }).fill(testGoalName);
+    await page.locator("label").filter({ hasText: "Morning 6am - 12pm" }).click();
+    await page.getByRole("button", { name: "Save Goal" }).click();
+
+    await expect(page.getByRole("heading", { name: testGoalName })).toBeVisible();
+
     page.once("dialog", (dialog) => {
       dialog.accept().catch(() => {});
     });
@@ -119,6 +130,12 @@ test.describe("Goaly App", () => {
     await expect(
       page.getByText("Your goals have been re-scheduled into your calendar."),
     ).toBeVisible();
+
+    // Clean up
+    page.on("dialog", (dialog) => dialog.accept());
+    await page.locator("details", { hasText: testGoalName }).getByRole("heading", { name: testGoalName }).click();
+    await page.locator("details", { hasText: testGoalName }).getByRole("button", { name: "Delete Goal" }).click();
+    await expect(page.getByRole("heading", { name: testGoalName })).not.toBeVisible();
   });
 
   test("should allow user to logout", async ({ page }) => {

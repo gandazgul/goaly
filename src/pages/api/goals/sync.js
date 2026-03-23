@@ -36,14 +36,16 @@ export const POST = async ({ request, redirect }) => {
     // Delete these instances from the DB
     if (futureInstances.length > 0) {
       const deleteStmt = db.prepare("DELETE FROM goal_instances WHERE id = ?");
-      const deleteTransaction = db.transaction(
-        (/** @type {any[]} */ instances) => {
-          for (const instance of instances) {
-            deleteStmt.run(instance.id);
-          }
-        },
-      );
-      deleteTransaction(futureInstances);
+      db.exec("BEGIN TRANSACTION;");
+      try {
+        for (const instance of futureInstances) {
+          deleteStmt.run(instance.id);
+        }
+        db.exec("COMMIT;");
+      } catch (err) {
+        db.exec("ROLLBACK;");
+        throw err;
+      }
     }
 
     // 2. Re-schedule phase: Fetch goals ordered by duration (shortest first)
