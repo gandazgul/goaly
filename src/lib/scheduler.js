@@ -121,43 +121,92 @@ export async function scheduleGoal(user, goal) {
     ),
   );
 
-  // 2. Fetch existing instances for this goal in the next 7 days
-  const rawExistingInstances = db.prepare(`
-    SELECT id, start_time, calendar_event_id FROM goal_instances 
-    WHERE goal_id = ? AND start_time >= ? AND start_time <= ? AND status != 'deleted'
-  `).all(goalId, timeMin.utc().toISOString(), timeMax.utc().toISOString());
+  // 2. Fetch existing instances for ALL goals for this user in the next 7 days
+  const allExistingInstances = db.prepare(`
+    SELECT gi.id, gi.start_time, gi.calendar_event_id, g.time_preference, g.duration_minutes, g.id as goal_id
+    FROM goal_instances gi
+    JOIN goals g ON gi.goal_id = g.id
+    WHERE g.user_id = ? AND gi.start_time >= ? AND gi.start_time <= ? AND gi.status != 'deleted'
+  `).all(user.id, timeMin.utc().toISOString(), timeMax.utc().toISOString());
 
-  // Filter out instances that were deleted from Google Calendar
-  const existingInstances = [];
-  for (const inst of rawExistingInstances) {
+  // Filter out instances deleted from Google Calendar and keep those competing for the same time block
+  const competingInstances = [];
+  for (const inst of allExistingInstances) {
     if (inst.calendar_event_id && !busyEventIds.has(inst.calendar_event_id)) {
       // It was deleted from Google Calendar, so mark it deleted in DB
       db.prepare("UPDATE goal_instances SET status = 'deleted' WHERE id = ?")
         .run(inst.id);
       console.log(
-        `Marked instance ${inst.id} of goal ${goal.name} as deleted because it's no longer in Google Calendar.`,
+        `Marked instance ${inst.id} of goal ID ${inst.goal_id} as deleted because it's no longer in Google Calendar.`,
       );
     } else {
-      existingInstances.push(inst);
+      if (inst.time_preference === time_preference) {
+        competingInstances.push(inst);
+      }
     }
   }
 
-  if (existingInstances.length >= times_per_week) {
+  // Check how many instances of THIS goal are already scheduled
+  const thisGoalInstances = competingInstances.filter((inst) =>
+    inst.goal_id === goalId
+  );
+  if (thisGoalInstances.length >= times_per_week) {
     console.log(
-      `Goal ${goal.name} already has ${existingInstances.length}/${times_per_week} instances scheduled in the next 7 days.`,
+      `Goal ${goal.name} already has ${thisGoalInstances.length}/${times_per_week} instances scheduled in the next 7 days.`,
     );
     return;
   }
 
-  // Get a list of day strings (e.g. "2023-10-04") where this goal is already scheduled
-  // so we don't schedule multiple instances of the same goal on the same day.
-  const daysWithInstances = new Set(
-    existingInstances.map((/** @type {GoalInstance} */ inst) => {
-      return dayjs(inst.start_time).tz(userTimezone).format("YYYY-MM-DD");
-    }),
-  );
+  const neededInstances = times_per_week - thisGoalInstances.length;
 
-  const neededInstances = goal.times_per_week - existingInstances.length;
+  // Track the crowdedness (total duration) per day string
+  /** @type {Record<string, number>} */
+  const crowdedness = {};
+  for (const inst of competingInstances) {
+    const dayStr = dayjs(inst.start_time).tz(userTimezone).format("YYYY-MM-DD");
+    crowdedness[dayStr] = (crowdedness[dayStr] || 0) + inst.duration_minutes;
+  }
+
+  // Also track how many instances of THIS goal are on each day
+  /** @type {Record<string, number>} */
+  const instancesOfThisGoalPerDay = {};
+  for (const inst of thisGoalInstances) {
+    const dayStr = dayjs(inst.start_time).tz(userTimezone).format("YYYY-MM-DD");
+    instancesOfThisGoalPerDay[dayStr] =
+      (instancesOfThisGoalPerDay[dayStr] || 0) + 1;
+  }
+
+  // Generate candidate days
+  /** @type {Array<{date: any, dateString: string, blockStart: any, blockEnd: any, crowdedness: number}>} */
+  const candidateDays = [];
+  for (let i = 0; i < 7; i++) {
+    const currentDay = now.add(i, "day");
+    const currentDayString = currentDay.format("YYYY-MM-DD");
+
+    // Determine the boundaries for this day's time block in user's timezone
+    const blockStart = currentDay.hour(block.startHour).minute(0).second(0)
+      .millisecond(0);
+    let blockEnd = currentDay.hour(block.endHour).minute(0).second(0)
+      .millisecond(0);
+
+    // If the block crosses midnight
+    if (block.endHour <= block.startHour) {
+      blockEnd = blockEnd.add(1, "day");
+    }
+
+    // Skip if the block is already entirely in the past
+    if (blockEnd.valueOf() <= now.valueOf()) {
+      continue;
+    }
+
+    candidateDays.push({
+      date: currentDay,
+      dateString: currentDayString,
+      blockStart,
+      blockEnd,
+      crowdedness: crowdedness[currentDayString] || 0,
+    });
+  }
 
   const busyRanges = busyEvents.map((
     /** @type {import('./calendar.js').CalendarEvent} */ e,
@@ -172,41 +221,13 @@ export async function scheduleGoal(user, goal) {
   /** @type {Array<{start: number, end: number}>} */
   const scheduledSlots = [];
 
-  // Iterate over the next 7 days to find free slots
-  for (let i = 0; i < 7; i++) {
-    if (scheduledSlots.length >= neededInstances) break;
+  // Helper to find a free slot on a given candidate day
+  const findSlotOnDay = (
+    /** @type {typeof candidateDays[0]} */ dayCandidate,
+  ) => {
+    let cursor = Math.max(dayCandidate.blockStart.valueOf(), now.valueOf());
 
-    const currentDay = now.add(i, "day");
-    const currentDayString = currentDay.format("YYYY-MM-DD");
-
-    // Check if this goal is already scheduled today
-    if (daysWithInstances.has(currentDayString)) {
-      continue;
-    }
-
-    // Determine the boundaries for this day's time block in user's timezone
-    const blockStart = currentDay.hour(block.startHour).minute(0).second(0)
-      .millisecond(0);
-    let blockEnd = currentDay.hour(block.endHour).minute(0).second(0)
-      .millisecond(0);
-
-    // If the end hour is mathematically less than or equal to start hour,
-    // it implies the block crosses midnight (e.g. Night: 21 to 6).
-    // In this case, blockEnd is on the next day.
-    if (block.endHour <= block.startHour) {
-      blockEnd = blockEnd.add(1, "day");
-    }
-
-    // Skip if the block is already entirely in the past
-    if (blockEnd.valueOf() <= now.valueOf()) {
-      continue;
-    }
-
-    // Adjust start time if today and the block has already started
-    let cursor = Math.max(blockStart.valueOf(), now.valueOf());
-
-    // We step through the block in 15-minute increments
-    while (cursor + durationMs <= blockEnd.valueOf()) {
+    while (cursor + durationMs <= dayCandidate.blockEnd.valueOf()) {
       const candidateEnd = cursor + durationMs;
 
       // Check for overlap with any busy event
@@ -220,16 +241,55 @@ export async function scheduleGoal(user, goal) {
       });
 
       if (!overlap && !selfOverlap) {
-        // We found a slot!
-        scheduledSlots.push({
-          start: cursor,
-          end: candidateEnd,
-        });
-        break; // Max 1 per day for a specific goal
+        return { start: cursor, end: candidateEnd };
       }
 
       // Move cursor forward by 15 mins
       cursor += 15 * 60 * 1000;
+    }
+    return null;
+  };
+
+  // PASS 1: Even Spread (Max 1 instance of THIS goal per day)
+  // Sort candidate days by crowdedness ASC
+  candidateDays.sort((a, b) => a.crowdedness - b.crowdedness);
+
+  for (const day of candidateDays) {
+    if (scheduledSlots.length >= neededInstances) break;
+
+    const alreadyCount = (instancesOfThisGoalPerDay[day.dateString] || 0) +
+      scheduledSlots.filter((s) =>
+        dayjs(s.start).tz(userTimezone).format("YYYY-MM-DD") === day.dateString
+      ).length;
+
+    if (alreadyCount > 0) continue;
+
+    const slot = findSlotOnDay(day);
+    if (slot) {
+      scheduledSlots.push(slot);
+      day.crowdedness += duration_minutes;
+    }
+  }
+
+  // PASS 2: Soft Fallback (Allow multiple instances per day if still needed)
+  if (scheduledSlots.length < neededInstances) {
+    let madeProgress = true;
+    while (scheduledSlots.length < neededInstances && madeProgress) {
+      madeProgress = false;
+      // Re-sort candidate days by updated crowdedness ASC
+      candidateDays.sort((a, b) => a.crowdedness - b.crowdedness);
+
+      for (const day of candidateDays) {
+        if (scheduledSlots.length >= neededInstances) break;
+
+        const slot = findSlotOnDay(day);
+        if (slot) {
+          scheduledSlots.push(slot);
+          day.crowdedness += duration_minutes;
+          madeProgress = true;
+          break; // Break out of the for loop to re-sort based on new crowdedness
+        }
+      }
     }
   }
 

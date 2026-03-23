@@ -1,6 +1,7 @@
 import { db } from "../../../db/index.js";
 import { getUserFromRequest } from "../../../lib/auth.js";
 import { scheduleGoal } from "../../../lib/scheduler.js";
+import { deleteCalendarEvent } from "../../../lib/calendar.js";
 
 /** @type {import('astro').APIRoute} */
 export const POST = async ({ request, redirect }) => {
@@ -11,18 +12,48 @@ export const POST = async ({ request, redirect }) => {
   }
 
   try {
-    // Get all active goals for the user
-    const goals = db.prepare("SELECT * FROM goals WHERE user_id = ?").all(
+    const nowISO = new Date().toISOString();
+
+    // 1. Destructive Re-sync: Delete all future pending instances for this user
+    const futureInstances = db.prepare(`
+      SELECT gi.id, gi.calendar_event_id 
+      FROM goal_instances gi
+      JOIN goals g ON gi.goal_id = g.id
+      WHERE g.user_id = ? AND gi.status = 'pending' AND gi.start_time >= ? AND gi.calendar_event_id IS NOT NULL
+    `).all(user.id, nowISO);
+
+    for (const instance of futureInstances) {
+      try {
+        await deleteCalendarEvent(user, instance.calendar_event_id);
+      } catch (err) {
+        console.error(
+          `Failed to delete calendar event ${instance.calendar_event_id}:`,
+          err,
+        );
+      }
+    }
+
+    // Delete these instances from the DB
+    if (futureInstances.length > 0) {
+      const deleteStmt = db.prepare("DELETE FROM goal_instances WHERE id = ?");
+      const deleteTransaction = db.transaction(
+        (/** @type {any[]} */ instances) => {
+          for (const instance of instances) {
+            deleteStmt.run(instance.id);
+          }
+        },
+      );
+      deleteTransaction(futureInstances);
+    }
+
+    // 2. Re-schedule phase: Fetch goals ordered by duration (shortest first)
+    const goals = db.prepare(
+      "SELECT * FROM goals WHERE user_id = ? ORDER BY duration_minutes",
+    ).all(
       user.id,
     );
 
     // Sync all goals sequentially
-    // (Could be parallel, but sequentially avoids overlapping them over each other if calendar events aren't immediately reflected)
-    // Actually, `scheduleGoal` checks Google Calendar per goal. To be completely safe against self-overlap among multiple goals,
-    // we should really run them sequentially so Google Calendar registers the first goal's events before checking for the second.
-    // However, `scheduleGoal` pushes to the DB but Google Cal fetch might have a slight delay.
-    // It's mostly fine for now.
-
     for (const goal of goals) {
       await scheduleGoal(user, goal);
     }

@@ -64,7 +64,7 @@ const successParam = url.searchParams.get('success');
 							<span class="i-ph-plus-bold"></span>
 							Add Goal
 						</button>
-						<form action="/api/goals/sync" method="POST">
+						<form action="/api/goals/sync" method="POST" onsubmit="return confirm('This will remove and reschedule all of your upcoming goal sessions to find the optimal slots. Are you sure you want to proceed?');">
 							<button type="submit" class="text-sm bg-indigo-50 text-indigo-700 px-4 py-2 rounded-lg hover:bg-indigo-100 transition font-medium border border-indigo-200 flex items-center gap-2">
 								<span class="i-ph-arrows-clockwise-fill"></span>
 								Sync Calendar
@@ -106,7 +106,7 @@ const successParam = url.searchParams.get('success');
 					<dialog id="goal-modal" class="p-0 rounded-2xl shadow-xl backdrop:bg-gray-900/50 border border-gray-100 max-w-md w-full bg-white open:animate-fade-in open:animate-duration-200">
 						<div class="relative">
 							<button onclick="document.getElementById('goal-modal').close()" class="absolute top-6 right-6 text-gray-400 hover:text-gray-600 z-10">
-								<div class="i-ph-x-bold text-xl"></div>
+								<span class="block i-ph-x-bold text-xl"></span>
 							</button>
 							<GoalForm />
 						</div>

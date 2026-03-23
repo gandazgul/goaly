@@ -107,7 +107,14 @@ test.describe("Goaly App", () => {
     await expect(page.getByRole("heading", { name: "Your Active Goals" }))
       .toBeVisible();
 
-    await page.getByRole("button", { name: "Sync Calendar" }).click();
+    page.once("dialog", (dialog) => {
+      dialog.accept().catch(() => {});
+    });
+
+    await Promise.all([
+      page.waitForURL("**/?success=GoalsSynced", { timeout: 10000 }),
+      page.getByRole("button", { name: "Sync Calendar" }).click(),
+    ]);
 
     await expect(
       page.getByText("Your goals have been re-scheduled into your calendar."),
