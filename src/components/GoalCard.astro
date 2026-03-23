@@ -1,5 +1,5 @@
 ---
-const { goal } = Astro.props;
+const { goal, timezone = 'UTC' } = Astro.props;
 
 // Formatting helpers
 const formatDuration = (minutes) => {
@@ -15,16 +15,18 @@ const formatTimes = (times) => {
   return `${times}x a week`;
 };
 
-const formatDateTime = (isoString) => {
+const formatDateTime = (isoString, tz) => {
   if (!isoString) return 'None scheduled yet';
   const date = new Date(isoString);
-  return date.toLocaleString('en-US', {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: tz,
     weekday: 'short',
     month: 'short',
     day: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
-  });
+    timeZoneName: 'short'
+  }).format(date);
 };
 
 const bgColors = {
@@ -93,7 +95,7 @@ const progressPercent = Math.min(100, Math.round(((goal.weeklyProgress || 0) / g
           <div class="i-ph-clock-fill text-blue-500"></div> Next Up
         </h4>
         <p class="text-lg font-medium text-gray-800 mb-4">
-          {goal.nextInstance ? formatDateTime(goal.nextInstance.start_time) : 'No upcoming instances found. Try syncing.'}
+          {goal.nextInstance ? formatDateTime(goal.nextInstance.start_time, timezone) : 'No upcoming instances found. Try syncing.'}
         </p>
         
         {goal.nextInstance && (

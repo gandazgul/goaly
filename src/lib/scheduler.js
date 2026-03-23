@@ -96,7 +96,7 @@ export async function scheduleGoal(user, goal) {
     },
     night: {
       startHour: user.night_start ?? 21,
-      endHour: user.morning_start ?? 6,
+      endHour: 24,
     },
   };
 

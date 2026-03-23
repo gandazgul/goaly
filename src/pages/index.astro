@@ -61,7 +61,7 @@ const successParam = url.searchParams.get('success');
 					</div>
 					<div class="flex flex-wrap justify-center gap-3">
 						<button onclick="document.getElementById('goal-modal').showModal()" class="text-sm bg-#005F6A text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium border border-blue-700 flex items-center gap-2">
-							<div class="i-ph-plus-bold"></div>
+							<span class="i-ph-plus-bold"></span>
 							Add Goal
 						</button>
 						<form action="/api/goals/sync" method="POST">
@@ -71,11 +71,11 @@ const successParam = url.searchParams.get('success');
 							</button>
 						</form>
 						<a href="/profile" class="text-sm bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition font-medium border border-gray-300 flex items-center gap-2">
-							<div class="i-ph-gear"></div>
+							<span class="i-ph-gear"></span>
 							Settings
 						</a>
 						<a href="/api/auth/logout" class="text-sm bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition font-medium border border-red-200 flex items-center gap-2">
-							<div class="i-ph-sign-out"></div>
+							<span class="i-ph-sign-out"></span>
 							Logout
 						</a>
 					</div>
@@ -97,7 +97,7 @@ const successParam = url.searchParams.get('success');
 						) : (
 							<div class="space-y-4">
 								{goals.map((goal) => (
-									<GoalCard goal={goal} />
+									<GoalCard goal={goal} timezone={user.timezone} />
 								))}
 							</div>
 						)}
@@ -131,7 +131,20 @@ const successParam = url.searchParams.get('success');
 		)}
 	</div>
 
-	<script>
+	<script define:vars={{ userTimezone: user?.timezone || 'UTC', hasUser: !!user }}>
+		if (hasUser) {
+			const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+			if (browserTimezone && browserTimezone !== userTimezone) {
+				fetch('/api/settings/timezone', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ timezone: browserTimezone })
+				}).then(res => {
+					if (res.ok) window.location.reload();
+				}).catch(console.error);
+			}
+		}
+
 		const dialog = document.getElementById('goal-modal');
 		if (dialog) {
 			dialog.addEventListener('click', (e) => {
