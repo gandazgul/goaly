@@ -37,7 +37,7 @@ const colors = [
         name="name" 
         placeholder="e.g. Read a book, Workout, Meditate" 
         required 
-        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+        class="w-full border border-gray-300 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
       />
     </div>
 
@@ -50,7 +50,7 @@ const colors = [
           {icons.map((icon, index) => (
             <label class="cursor-pointer relative">
               <input type="radio" name="icon" value={icon} class="peer sr-only" checked={index === 0} />
-              <div class="w-10 h-10 rounded-lg border-2 border-gray-200 flex items-center justify-center peer-checked:bg-[#005F6A]/10 peer-checked:border-white peer-checked:ring-2 peer-checked:ring-[#005F6A] peer-checked:text-[#005F6A] hover:bg-gray-50 hover:scale-110 transition text-gray-500 text-xl">
+              <div class="w-11 h-11 rounded-lg border-2 border-gray-200 flex items-center justify-center peer-checked:bg-[#005F6A]/10 peer-checked:border-white peer-checked:ring-2 peer-checked:ring-[#005F6A] peer-checked:text-[#005F6A] hover:bg-gray-50 hover:scale-110 transition text-gray-500 text-xl">
                 <div class={icon}></div>
               </div>
             </label>
@@ -65,7 +65,7 @@ const colors = [
           {colors.map(color => (
             <label class="cursor-pointer relative">
               <input type="radio" name="color" value={color.id} class="peer sr-only" checked={color.default} />
-              <span class={`block w-10 h-10 rounded-lg ${color.bg} border-2 border-#ffffff peer-checked:border-white peer-checked:ring-2 peer-checked:ring-[#005F6A] hover:scale-110 transition shadow-sm`}></span>
+              <span class={`block w-11 h-11 rounded-lg ${color.bg} border-2 border-#ffffff peer-checked:border-white peer-checked:ring-2 peer-checked:ring-[#005F6A] hover:scale-110 transition shadow-sm`}></span>
             </label>
           ))}
         </div>
@@ -78,7 +78,7 @@ const colors = [
         <select 
           id="duration_minutes" 
           name="duration_minutes" 
-          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white"
+          class="w-full border border-gray-300 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white"
         >
           <option value="15">15 minutes</option>
           <option value="30" selected>30 minutes</option>
@@ -94,7 +94,7 @@ const colors = [
         <select 
           id="times_per_week" 
           name="times_per_week" 
-          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white"
+          class="w-full border border-gray-300 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white"
         >
           <option value="1">Once a week</option>
           <option value="2">2 times a week</option>

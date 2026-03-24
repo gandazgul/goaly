@@ -99,14 +99,14 @@ const progressPercent = Math.min(100, Math.round(((goal.weeklyProgress || 0) / g
         </p>
         
         {goal.nextInstance && (
-          <div class="flex gap-2">
-            <button class="action-btn flex-1 bg-green-100 hover:bg-green-200 text-green-700 py-2 rounded-lg font-medium flex items-center justify-center gap-1 transition" data-id={goal.nextInstance.id} data-status="completed">
+          <div class="flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
+            <button class="action-btn flex-1 bg-green-100 hover:bg-green-200 text-green-700 py-3 md:py-2 rounded-lg font-medium flex items-center justify-center gap-1 transition" data-id={goal.nextInstance.id} data-status="completed">
               ✅ Done
             </button>
-            <button class="action-btn flex-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 py-2 rounded-lg font-medium flex items-center justify-center gap-1 transition" data-id={goal.nextInstance.id} data-status="skipped">
+            <button class="action-btn flex-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 py-3 md:py-2 rounded-lg font-medium flex items-center justify-center gap-1 transition" data-id={goal.nextInstance.id} data-status="skipped">
               ⏭️ Skip
             </button>
-            <button class="action-btn flex-1 bg-red-100 hover:bg-red-200 text-red-700 py-2 rounded-lg font-medium flex items-center justify-center gap-1 transition" data-id={goal.nextInstance.id} data-status="missed">
+            <button class="action-btn flex-1 bg-red-100 hover:bg-red-200 text-red-700 py-3 md:py-2 rounded-lg font-medium flex items-center justify-center gap-1 transition" data-id={goal.nextInstance.id} data-status="missed">
               ❌ Miss
             </button>
           </div>
@@ -133,10 +133,10 @@ const progressPercent = Math.min(100, Math.round(((goal.weeklyProgress || 0) / g
             Lifetime: <span class="font-bold text-gray-700">{goal.lifetimeCompletions || 0}</span>
           </p>
           
-          <form method="POST" action="/api/goals/delete" onsubmit="return confirm('Are you sure you want to delete this goal and remove all of its scheduled events from your calendar?');">
+          <form method="POST" action="/api/goals/delete" onsubmit="return confirm('Are you sure you want to delete this goal and remove all of its scheduled events from your calendar?');" class="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
             <input type="hidden" name="goal_id" value={goal.id} />
-            <button type="submit" class="text-xs text-red-500 hover:text-red-700 hover:underline flex items-center gap-1">
-              <span class="i-ph-trash"></span> Delete Goal
+            <button type="submit" class="text-sm text-red-500 hover:text-red-700 hover:underline flex items-center gap-1 p-2 -mr-2">
+              <span class="i-ph-trash text-lg"></span> Delete Goal
             </button>
           </form>
         </div>

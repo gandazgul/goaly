@@ -22,35 +22,23 @@ This document outlines the planned features and technical milestones for Goaly.
   - Visual progress bars and streak indicators on Goal Cards.
   - Google Calendar Sync: Automatically updates Google Calendar event titles
     with completion statuses (✅ or ❌).
+- **Phase 2: User Customization & Time Blocks**
+  - [x] **Customizable Time Blocks:** Update the Settings/Profile page so users
+        can define exactly what hours "Morning", "Afternoon", "Evening", and
+        "Night" mean to them (currently hardcoded).
+  - [x] **Timezone Handling:** Ensure time blocks correctly respect the user's
+        local timezone settings when querying Google Calendar.
+- **Phase 3: PWA & Mobile Experience**
+  - [x] **Responsive Design:** Audit and improve the UI to ensure it is fully
+        responsive and looks great on mobile phones, tablets, and desktops.
+  - [x] **PWA Service Worker:** Implement a service worker to cache core assets
+        and provide a reliable offline fallback screen.
+  - [x] **Installability:** Add PWA configuration to prompt Android and iOS
+        users to "Add to Home Screen" for a full-screen, native-like experience.
 
 ---
 
 ## 🚀 Upcoming Phases
-
-### Phase 2: User Customization & Time Blocks
-
-_Give users more control over when their goals happen._
-
-- [ ] **Customizable Time Blocks:** Update the Settings/Profile page so users
-      can define exactly what hours "Morning", "Afternoon", "Evening", and
-      "Night" mean to them (currently hardcoded).
-- [ ] **Timezone Handling:** Ensure time blocks correctly respect the user's
-      local timezone settings when querying Google Calendar.
-
-More details on [PHASE2.spec.md](./PHASE2.spec.md).
-
-### Phase 3: PWA & Mobile Experience
-
-_Make Goaly feel like a native app on any device._
-
-- [ ] **Responsive Design:** Audit and improve the UI to ensure it is fully
-      responsive and looks great on mobile phones, tablets, and desktops.
-- [ ] **PWA Service Worker:** Implement a service worker to cache core assets
-      and provide a reliable offline fallback screen.
-- [ ] **Installability:** Add PWA configuration to prompt Android and iOS users
-      to "Add to Home Screen" for a full-screen, native-like experience.
-
-More details on [PHASE3.spec.md](./PHASE3.spec.md).
 
 ### Phase 4: Notifications & Automated Rescheduling
 

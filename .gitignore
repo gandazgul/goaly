@@ -15,6 +15,7 @@ dist/
 # Database
 *.db
 *.db-journal
+.opencode/
 
 # OS
 .DS_Store

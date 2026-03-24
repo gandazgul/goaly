@@ -98,20 +98,12 @@ deno task build
 
 Goaly is actively being developed. Here is a look at what's coming next:
 
-### User Customization & Time Blocks
+### Notifications & Automated Rescheduling
 
-- **Customizable Time Blocks:** Update the Settings/Profile page so users can
-  define exactly what hours "Morning", "Afternoon", "Evening", and "Night" mean
-  to them.
-- **Timezone Handling:** Ensure time blocks correctly respect the user's local
-  timezone settings when querying Google Calendar.
-
-### Future
-
-- **PWA & Mobile Experience:** Responsive design, offline fallback, and "Add to
-  Home Screen" support.
-- **Notifications & Automated Rescheduling:** Push notifications via Gotify and
-  smart rescheduling for missed goals.
+- **Gotify Reminders:** Implement proactive notifications via Gotify to remind
+  users of upcoming goals.
+- **Smart Rescheduling:** Automatically detect missed goals and find new slots
+  for them later in the week.
 
 For more details on upcoming features and technical specifications, check out
 our [ROADMAP.md](ROADMAP.md).
