@@ -31,8 +31,50 @@ Deno.test("scheduleGoal - 3-hour night block does not over-schedule", async () =
   const goal = db.prepare("SELECT * FROM goals WHERE user_id = ? AND name = ?")
     .get(user.id, "Night Time Gaming");
 
-  // Call scheduleGoal to schedule the goal
-  await scheduleGoal(user, goal);
+  const originalFetch = globalThis.fetch;
+  // @ts-ignore: mock fetch for tests
+  globalThis.fetch = (url, options) => {
+    const urlStr = String(url);
+    const method = options?.method || "GET";
+    if (urlStr.includes("token")) {
+      return Promise.resolve(
+        /** @type {any} */ ({
+          ok: true,
+          json: () => Promise.resolve({ access_token: "mock_token" }),
+        }),
+      );
+    }
+    if (urlStr.includes("calendar/v3/calendars")) {
+      if (method === "POST") {
+        return Promise.resolve(
+          /** @type {any} */ ({
+            ok: true,
+            json: () => Promise.resolve({ id: `mock_event_${Date.now()}` }),
+          }),
+        );
+      }
+      return Promise.resolve(
+        /** @type {any} */ ({
+          ok: true,
+          json: () => Promise.resolve({ items: [] }),
+        }),
+      );
+    }
+    // Fallback
+    return Promise.resolve(
+      /** @type {any} */ ({
+        ok: true,
+        json: () => Promise.resolve({}),
+      }),
+    );
+  };
+
+  try {
+    // Call scheduleGoal to schedule the goal
+    await scheduleGoal(user, goal);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 
   // Fetch the created instances
   const instances = db.prepare(
