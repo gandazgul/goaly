@@ -1,0 +1,52 @@
+name: Build and Publish Container Image
+
+on:
+    push:
+        branches:
+            - main
+        tags:
+            - "v*"
+    workflow_dispatch:
+
+env:
+    REGISTRY: ghcr.io
+    IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+    build-and-push:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            packages: write
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v6
+
+            - name: Determine image tags
+              id: vars
+              run: |
+                  if [[ "${{ github.ref_type }}" == "tag" ]]; then
+                    echo "tags=latest ${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+                  else
+                    SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+                    echo "tags=dev sha-${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+                  fi
+
+            - name: Build image with Buildah
+              id: build
+              uses: redhat-actions/buildah-build@v2
+              with:
+                  image: ${{ env.IMAGE_NAME }}
+                  tags: ${{ steps.vars.outputs.tags }}
+                  containerfiles: ./Containerfile
+                  oci: true
+
+            - name: Push to GHCR
+              uses: redhat-actions/push-to-registry@v2
+              with:
+                  image: ${{ steps.build.outputs.image }}
+                  tags: ${{ steps.build.outputs.tags }}
+                  registry: ${{ env.REGISTRY }}
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
