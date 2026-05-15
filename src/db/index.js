@@ -9,6 +9,11 @@ const { DatabaseSync } = await importDynamic("node:sqlite");
 const dbPath = process.env.DB_PATH || "goaly.db";
 export const db = new DatabaseSync(dbPath);
 
+// SQLite ships with foreign_keys disabled per-connection; without this the
+// ON DELETE CASCADE clauses in 001_initial.sql are silently ignored and
+// orphan rows can be inserted via bad joins.
+db.exec("PRAGMA foreign_keys = ON;");
+
 // Initialize migrations table
 db.exec(`
   CREATE TABLE IF NOT EXISTS migrations (

@@ -22,8 +22,8 @@
     "build": "deno run -A --env npm:astro build",
     "preview": "deno run -A --env npm:astro preview",
     "astro": "deno run -A --env npm:astro",
-    "test": "deno test -A",
-    "ci": "deno lint && deno fmt --check && deno check && deno test -A"
+    "test": "DB_PATH=:memory: deno test -A",
+    "ci": "deno lint && deno fmt --check && deno check --check-js --doc && deno run test"
   },
   "fmt": {
     "exclude": [

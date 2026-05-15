@@ -52,20 +52,15 @@ COPY --from=builder --chown=nonroot:nonroot /app/deno.json /app/deno.lock ./
 # Copy migrations for runtime execution
 COPY --from=builder --chown=nonroot:nonroot /app/src/db/migrations ./src/db/migrations
 
-# Copy the advance cron script for runtime execution
-COPY --from=builder --chown=nonroot:nonroot /app/src/server/advance.js ./src/server/advance.js
-
 # Copy node_modules for native bindings compatibility
 COPY --from=builder --chown=nonroot:nonroot /app/node_modules ./node_modules
-
-RUN mkdir -p /app/logs
 
 ENV HOST=0.0.0.0
 ENV PORT=8080
 
 EXPOSE 8080
 
-# Run the Astro server with all permissions inside the container sandbox.
-# The advance cron runs in the background; nohup ensures it survives
-# if the main process restarts (container lifecycle events).
-CMD ["/bin/sh", "-c", "nohup /bin/deno run -A /app/src/server/advance.js > /app/logs/advance.log 2>&1 & /bin/deno run -A /app/server/entry.mjs"]
+# The daily advance cron is bootstrapped from src/middleware.js inside the
+# Astro server process — no sidecar / shell wrapper needed (distroless/cc
+# has no /bin/sh).
+CMD ["/bin/deno", "run", "-A", "/app/server/entry.mjs"]

@@ -1,7 +1,27 @@
 import { strict as assert } from "node:assert";
-import { db } from "../db/index.js";
-import { advanceGoalInstances } from "./advance.js";
-import dayjs from "./dateUtils.js";
+import process from "node:process";
+
+// Safety guard: advanceGoalInstances() scans every user, marks their
+// pending instances as 'missed', and calls scheduleGoal against the real
+// Google Calendar API. Running these tests against goaly.db would corrupt
+// real user data. The `test` / `ci` tasks in deno.json set DB_PATH=:memory:
+// — this check refuses to run if someone invokes `deno test` directly
+// without overriding the default.
+if (!process.env.DB_PATH || process.env.DB_PATH === "goaly.db") {
+  throw new Error(
+    "advance.test.js refuses to run against the default DB_PATH. " +
+      "Use `deno task test` (which sets DB_PATH=:memory:) or export DB_PATH yourself.",
+  );
+}
+
+const { db } = await import("../db/index.js");
+const { advanceGoalInstances } = await import("./advance.js");
+const dayjs = (await import("./dateUtils.js")).default;
+
+// Stand-in for scheduleGoal so tests don't hit the real Google Calendar API
+// with fake refresh tokens. The unit under test here is the
+// mark-missed-and-tick-tracking logic, not the scheduler itself.
+const noopScheduler = async () => {};
 
 /**
  * @typedef {Object} TestUser
@@ -108,7 +128,7 @@ function createInstance(goal, startIso, endIso, status) {
 }
 
 Deno.test("advanceGoalInstances - marks past-due instances as missed", async () => {
-  const { user } = await setupUser();
+  const { user } = setupUser();
   const goal = createGoal(user, "Reading Time", 3, "afternoon");
 
   // Create 2 past-due pending instances
@@ -126,7 +146,7 @@ Deno.test("advanceGoalInstances - marks past-due instances as missed", async () 
     "Should have 2 pending instances before advancement",
   );
 
-  const result = await advanceGoalInstances();
+  const result = await advanceGoalInstances(noopScheduler);
 
   instances = db.prepare("SELECT * FROM goal_instances WHERE goal_id = ?").all(
     goal.id,
@@ -143,7 +163,7 @@ Deno.test("advanceGoalInstances - marks past-due instances as missed", async () 
 });
 
 Deno.test("advanceGoalInstances - skips future pending instances", async () => {
-  const { user } = await setupUser();
+  const { user } = setupUser();
   const goal = createGoal(user, "Future Goal", 3, "afternoon");
 
   const pastTime = dayjs.utc().subtract(1, "day").toISOString();
@@ -156,7 +176,7 @@ Deno.test("advanceGoalInstances - skips future pending instances", async () => {
     .toISOString();
   createInstance(goal, futureTime, futureEndTime);
 
-  const result = await advanceGoalInstances();
+  const result = await advanceGoalInstances(noopScheduler);
 
   const instances = db.prepare("SELECT * FROM goal_instances WHERE goal_id = ?")
     .all(goal.id);
@@ -181,16 +201,16 @@ Deno.test("advanceGoalInstances - skips future pending instances", async () => {
 });
 
 Deno.test("advanceGoalInstances - handles goals with no pending instances", async () => {
-  const { user } = await setupUser();
+  const { user } = setupUser();
   createGoal(user, "No Pending Goal", 3, "afternoon");
 
-  const result = await advanceGoalInstances();
+  const result = await advanceGoalInstances(noopScheduler);
   assert.equal(result.advanced, 0, "Should not have advanced any goals");
   assert.equal(result.missed, 0, "Should not have missed any instances");
 });
 
 Deno.test("advanceGoalInstances - marks all past-due instances as missed", async () => {
-  const { user } = await setupUser();
+  const { user } = setupUser();
   const goal = createGoal(user, "Many Past Goal", 5, "afternoon");
 
   const pastTime = dayjs.utc().subtract(2, "day").toISOString();
@@ -200,7 +220,7 @@ Deno.test("advanceGoalInstances - marks all past-due instances as missed", async
     createInstance(goal, pastTime, pastEndTime);
   }
 
-  const result = await advanceGoalInstances();
+  const result = await advanceGoalInstances(noopScheduler);
 
   const instances = db.prepare("SELECT * FROM goal_instances WHERE goal_id = ?")
     .all(goal.id);
@@ -212,7 +232,7 @@ Deno.test("advanceGoalInstances - marks all past-due instances as missed", async
 });
 
 Deno.test("advanceGoalInstances - multiple goals for same user", async () => {
-  const { user } = await setupUser();
+  const { user } = setupUser();
   const goal1 = createGoal(user, "Goal 1", 2, "morning");
   const goal2 = createGoal(user, "Goal 2", 2, "afternoon");
 
@@ -222,7 +242,7 @@ Deno.test("advanceGoalInstances - multiple goals for same user", async () => {
   createInstance(goal1, pastTime, pastEndTime);
   createInstance(goal2, pastTime, pastEndTime);
 
-  const result = await advanceGoalInstances();
+  const result = await advanceGoalInstances(noopScheduler);
 
   const instances1 = db.prepare(
     "SELECT * FROM goal_instances WHERE goal_id = ?",
@@ -243,7 +263,7 @@ Deno.test("advanceGoalInstances - multiple goals for same user", async () => {
 });
 
 Deno.test("advanceGoalInstances - does not mark non-pending instances as missed", async () => {
-  const { user } = await setupUser();
+  const { user } = setupUser();
   const goal = createGoal(user, "Non-Pending Goal", 3, "afternoon");
 
   const pastTime = dayjs.utc().subtract(1, "day").toISOString();
@@ -254,7 +274,7 @@ Deno.test("advanceGoalInstances - does not mark non-pending instances as missed"
   createInstance(goal, pastTime, pastEndTime, "completed");
   createInstance(goal, pastTime, pastEndTime, "skipped");
 
-  await advanceGoalInstances();
+  await advanceGoalInstances(noopScheduler);
 
   const instances = db.prepare("SELECT * FROM goal_instances WHERE goal_id = ?")
     .all(goal.id);
@@ -272,7 +292,7 @@ Deno.test("advanceGoalInstances - does not mark non-pending instances as missed"
 });
 
 Deno.test("advanceGoalInstances - updates last_advance_at tracking column", async () => {
-  const { user } = await setupUser();
+  const { user } = setupUser();
   const goal = createGoal(user, "Tracking Goal", 3, "afternoon");
 
   const pastTime = dayjs.utc().subtract(1, "day").toISOString();
@@ -280,7 +300,7 @@ Deno.test("advanceGoalInstances - updates last_advance_at tracking column", asyn
     .toISOString();
   createInstance(goal, pastTime, pastEndTime);
 
-  await advanceGoalInstances();
+  await advanceGoalInstances(noopScheduler);
 
   const updatedGoal = db.prepare(
     "SELECT last_advance_at FROM goals WHERE id = ?",
