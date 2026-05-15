@@ -1,5 +1,6 @@
 // Polyfill for Astro's Vite CJS evaluator in Deno
 globalThis.exports = globalThis.exports || {};
+// @ts-expect-error needed for Vite/CJS polyfill
 globalThis.module = globalThis.module || { exports: globalThis.exports };
 
 import { defineConfig, passthroughImageService } from "astro/config";

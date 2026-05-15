@@ -126,7 +126,7 @@ export async function scheduleGoal(user, goal) {
     SELECT gi.id, gi.start_time, gi.calendar_event_id, g.time_preference, g.duration_minutes, g.id as goal_id
     FROM goal_instances gi
     JOIN goals g ON gi.goal_id = g.id
-    WHERE g.user_id = ? AND gi.start_time >= ? AND gi.start_time <= ? AND gi.status != 'deleted'
+    WHERE g.user_id = ? AND gi.start_time >= ? AND gi.start_time <= ? AND gi.status NOT IN ('deleted', 'missed')
   `).all(user.id, timeMin.utc().toISOString(), timeMax.utc().toISOString());
 
   // Filter out instances deleted from Google Calendar and keep those competing for the same time block
