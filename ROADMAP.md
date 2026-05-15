@@ -29,26 +29,24 @@ This document outlines the planned features and technical milestones for Goaly.
   - [x] **Timezone Handling:** Ensure time blocks correctly respect the user's
         local timezone settings when querying Google Calendar.
 - **Phase 3: PWA & Mobile Experience**
-  - [x] **Responsive Design:** Audit and improve the UI to ensure it is fully
-        responsive and looks great on mobile phones, tablets, and desktops.
-  - [x] **PWA Service Worker:** Implement a service worker to cache core assets
-        and provide a reliable offline fallback screen.
-  - [x] **Installability:** Add PWA configuration to prompt Android and iOS
-        users to "Add to Home Screen" for a full-screen, native-like experience.
+  - Responsive layout with mobile-first padding, full-width action buttons on
+    small screens, and 44px touch targets across forms and goal cards.
+  - Service worker (`public/sw.js`) with network-first HTML fetch, cache
+    versioning, and a branded `offline.html` fallback.
+  - Installable PWA: web manifest with maskable icons, standalone display, and
+    iOS-specific meta tags for home-screen installs.
+- **Smart Rescheduling:** Daily midnight-aligned cron (`src/server/advance.js`)
+  scans for past-due pending `goal_instances`, marks them `missed`, and invokes
+  the Scheduling Engine to refill the affected goal with new slots later in the
+  week. Marking only flips to `missed` after a successful schedule so transient
+  Google Calendar errors retry on the next tick.
 
 ---
 
 ## 🚀 Upcoming Phases
 
-### Phase 4: Notifications & Automated Rescheduling
-
-_Proactive features using Deno Crons (carried over from initial implementation
-plan)._
+### Phase 4: Notifications
 
 - [ ] **Gotify Reminders:** Implement a `Deno.cron` job to frequently check for
       upcoming `goal_instances` and fire webhooks to the user's connected Gotify
       server to remind them.
-- [ ] **Smart Rescheduling:** Implement a nightly `Deno.cron` to check for
-      missed goals (events that passed without being marked "done"). Trigger the
-      Scheduling Engine to automatically find a new slot for them later in the
-      week.

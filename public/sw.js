@@ -35,7 +35,7 @@ self.addEventListener("fetch", (event) => {
   // Only handle GET requests for HTML pages
   if (
     event.request.method === "GET" &&
-    event.request.headers.get("accept").includes("text/html")
+    event.request.headers.get("accept")?.includes("text/html")
   ) {
     event.respondWith(
       fetch(event.request)
