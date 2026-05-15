@@ -3,14 +3,14 @@ import process from "node:process";
 
 // Safety guard: advanceGoalInstances() scans every user, marks their
 // pending instances as 'missed', and calls scheduleGoal against the real
-// Google Calendar API. Running these tests against goaly.db would corrupt
-// real user data. The `test` / `ci` tasks in deno.json set DB_PATH=:memory:
-// — this check refuses to run if someone invokes `deno test` directly
-// without overriding the default.
-if (!process.env.DB_PATH || process.env.DB_PATH === "goaly.db") {
+// Google Calendar API. Running these tests against any on-disk DB would
+// corrupt real data, so we hard-require an in-memory DB. The `test` / `ci`
+// tasks in deno.json set DB_PATH=:memory: — running `deno test` directly
+// without that env var (or with a file path) is refused.
+if (process.env.DB_PATH !== ":memory:") {
   throw new Error(
-    "advance.test.js refuses to run against the default DB_PATH. " +
-      "Use `deno task test` (which sets DB_PATH=:memory:) or export DB_PATH yourself.",
+    "advance.test.js requires DB_PATH=:memory: to avoid corrupting a real DB. " +
+      "Use `deno task test` or export DB_PATH=:memory: yourself.",
   );
 }
 

@@ -55,15 +55,9 @@ export async function advanceGoalInstances(scheduleFn = scheduleGoal) {
   /** @type {number[]} */
   const advancedGoalIds = [];
 
-  for (const [goalId, data] of goalsMap) {
-    // Mark all overdue pending instances as 'missed'
-    const placeholders = data.instances.map(() => "?").join(", ");
-    db.prepare(`
-      UPDATE goal_instances
-      SET status = 'missed'
-      WHERE id IN (${placeholders})
-    `).run(...data.instances);
+  let missedCount = 0;
 
+  for (const [goalId, data] of goalsMap) {
     // Fetch the full user and goal details for scheduling.
     // Explicit aliases are required: goals.id and users.id would collide
     // under SELECT g.*, u.* and the second wins, corrupting goal.id.
@@ -120,8 +114,17 @@ export async function advanceGoalInstances(scheduleFn = scheduleGoal) {
 
       try {
         await scheduleFn(user, goal);
-        // Only record advancement after scheduling succeeds — otherwise
-        // the tracking column lies and a stalled goal looks healthy.
+        // Only flip the overdue rows to 'missed' after scheduling
+        // succeeds. If it failed, the pending rows stay pending so the
+        // next cron tick retries — otherwise a transient Google API
+        // error would silently strand the goal with no future instances.
+        const placeholders = data.instances.map(() => "?").join(", ");
+        db.prepare(`
+          UPDATE goal_instances
+          SET status = 'missed'
+          WHERE id IN (${placeholders})
+        `).run(...data.instances);
+        missedCount += data.instances.length;
         db.prepare(
           `UPDATE goals SET last_advance_at = ? WHERE id = ?`,
         ).run(nowIso, goalId);
@@ -134,5 +137,5 @@ export async function advanceGoalInstances(scheduleFn = scheduleGoal) {
     }
   }
 
-  return { advanced: advancedGoalIds.length, missed: overdueInstances.length };
+  return { advanced: advancedGoalIds.length, missed: missedCount };
 }
