@@ -123,7 +123,7 @@ export async function scheduleGoal(user, goal) {
 
   // 2. Fetch existing instances for ALL goals for this user in the next 7 days
   const allExistingInstances = db.prepare(`
-    SELECT gi.id, gi.start_time, gi.calendar_event_id, g.time_preference, g.duration_minutes, g.id as goal_id
+    SELECT gi.id, gi.start_time, gi.calendar_event_id, gi.status, g.time_preference, g.duration_minutes, g.id as goal_id
     FROM goal_instances gi
     JOIN goals g ON gi.goal_id = g.id
     WHERE g.user_id = ? AND gi.start_time >= ? AND gi.start_time <= ? AND gi.status NOT IN ('deleted', 'missed')
@@ -146,13 +146,17 @@ export async function scheduleGoal(user, goal) {
     }
   }
 
-  // Check how many instances of THIS goal are already scheduled
+  // Check how many PENDING instances of THIS goal are still scheduled in the
+  // lookahead window. Completed/skipped instances are not counted: the user
+  // has already discharged that obligation, so they should not block the
+  // next scheduling pass (e.g. clicking Done on the only pending instance of
+  // a times_per_week=1 goal must still produce a fresh next instance).
   const thisGoalInstances = competingInstances.filter((inst) =>
-    inst.goal_id === goalId
+    inst.goal_id === goalId && inst.status === "pending"
   );
   if (thisGoalInstances.length >= times_per_week) {
     console.log(
-      `Goal ${goal.name} already has ${thisGoalInstances.length}/${times_per_week} instances scheduled in the next 7 days.`,
+      `Goal ${goal.name} already has ${thisGoalInstances.length}/${times_per_week} pending instances scheduled in the next 7 days.`,
     );
     return;
   }
