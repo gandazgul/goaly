@@ -89,10 +89,10 @@ changes, always run the following commands to format your code, catch linting
 errors, and verify the build:
 
 ```bash
-deno fmt
-deno lint
-deno task build
+deno run ci
 ```
+
+this runs, lint, fmt --check, check (typecheck) & tests
 
 ## Roadmap & Upcoming Features
 
@@ -102,8 +102,6 @@ Goaly is actively being developed. Here is a look at what's coming next:
 
 - **Gotify Reminders:** Implement proactive notifications via Gotify to remind
   users of upcoming goals.
-- **Smart Rescheduling:** Automatically detect missed goals and find new slots
-  for them later in the week.
 
 For more details on upcoming features and technical specifications, check out
 our [ROADMAP.md](ROADMAP.md).
@@ -125,7 +123,8 @@ our [ROADMAP.md](ROADMAP.md).
 
 ## Acknowledgements
 
-Built with the help of [OpenCode](https://opencode.ai/) using Gemini.
+Built with the help of [OpenCode](https://opencode.ai/) and [Pi](https://pi.dev)
+using many LLMs and also Claude Code.
 
 ## License
 
